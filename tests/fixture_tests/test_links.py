@@ -14,13 +14,13 @@ def _assert_flat(result: dict) -> None:
 
 class TestExtractLinkType:
     def test_handles_real_shape(self, real_link_types):
-        link_types = real_link_types["issueLinkTypes"]
+        link_types = real_link_types.get("issueLinkTypes") or real_link_types.get("items", [])
         for lt in link_types:
             result = _extract_link_type(lt)
             _assert_flat(result)
 
     def test_expected_keys(self, real_link_types):
-        link_types = real_link_types["issueLinkTypes"]
+        link_types = real_link_types.get("issueLinkTypes") or real_link_types.get("items", [])
         result = _extract_link_type(link_types[0])
         assert set(result.keys()) == {
             "id",

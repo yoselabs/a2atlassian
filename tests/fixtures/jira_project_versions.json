@@ -1,31 +1,31 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-05T00:00:00Z",
-    "library_version": "placeholder",
-    "api_method": "get_project_versions",
-    "args": ["TEST"],
+    "recorded_at": "2026-04-04T23:31:43.448853+00:00",
+    "library_version": "4.0.7",
+    "api_method": "client._jira.get_project_versions",
+    "args": [
+      "AT"
+    ],
     "cloud": true
   },
   "items": [
     {
-      "id": 1,
-      "name": "v1.0",
-      "self": "https://test.atlassian.net/rest/api/2/version/1",
+      "self": "https://test.atlassian.net/rest/api/2/version/10002",
+      "id": "10002",
+      "name": "Release 1.0",
+      "archived": false,
       "released": true,
-      "releaseDate": "2026-01-01"
+      "releaseDate": "2026-01-15",
+      "userReleaseDate": "15/Jan/26",
+      "projectId": 10035
     },
     {
-      "id": 2,
-      "name": "v2.0",
-      "self": "https://test.atlassian.net/rest/api/2/version/2",
-      "released": false
-    },
-    {
-      "id": 3,
-      "name": "v2.1-beta",
-      "self": "https://test.atlassian.net/rest/api/2/version/3",
+      "self": "https://test.atlassian.net/rest/api/2/version/10003",
+      "id": "10003",
+      "name": "Release 2.0",
+      "archived": false,
       "released": false,
-      "releaseDate": "2026-06-01"
+      "projectId": 10035
     }
   ]
 }

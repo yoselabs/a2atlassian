@@ -254,7 +254,7 @@ async def record_all() -> None:
 
     await r("jira_fields.json", "client._jira.get_all_fields", [], client._call(client._jira.get_all_fields))
     await r("jira_link_types.json", "client._jira.get_issue_link_types", [], client._call(client._jira.get_issue_link_types))
-    await r("jira_boards.json", "client._jira.boards", [], client._call(client._jira.boards))
+    await r("jira_boards.json", "client._jira.get_all_agile_boards", [], client._call(client._jira.get_all_agile_boards))
 
     if board_id:
         bid = int(board_id)
@@ -271,7 +271,7 @@ async def record_all() -> None:
             "jira_sprint_issues.json",
             "client._jira.get_sprint_issues",
             [sprint_id],
-            client._call(client._jira.get_sprint_issues, sid, startAt=0, maxResults=5),
+            client._call(client._jira.get_sprint_issues, sid, 0, 5),
         )
 
     if field_id:
@@ -287,7 +287,7 @@ async def record_all() -> None:
             "jira_user.json",
             "client._jira.user",
             [account_id],
-            client._call(client._jira.user, account_id),
+            client._call(client._jira.user, account_id=account_id),
         )
 
     if project:

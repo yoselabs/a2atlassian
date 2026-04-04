@@ -1,12 +1,14 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-05T00:00:00Z",
-    "library_version": "placeholder",
-    "api_method": "create_issue",
-    "args": [],
+    "recorded_at": "2026-04-04T23:31:46.315840+00:00",
+    "library_version": "4.0.7",
+    "api_method": "client._jira.create_issue",
+    "args": [
+      "fields={...}"
+    ],
     "cloud": true
   },
-  "id": 10001,
-  "key": "TEST-42",
-  "self": "https://test.atlassian.net/rest/api/2/issue/10001"
+  "id": "10045",
+  "key": "AT-7",
+  "self": "https://test.atlassian.net/rest/api/2/issue/10045"
 }

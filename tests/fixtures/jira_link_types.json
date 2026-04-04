@@ -1,32 +1,39 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-05T00:00:00Z",
-    "library_version": "placeholder",
-    "api_method": "get_issue_link_types",
+    "recorded_at": "2026-04-04T23:31:44.193351+00:00",
+    "library_version": "4.0.7",
+    "api_method": "client._jira.get_issue_link_types",
     "args": [],
     "cloud": true
   },
-  "issueLinkTypes": [
+  "items": [
     {
-      "id": 1,
+      "id": "10000",
       "name": "Blocks",
-      "self": "https://test.atlassian.net/rest/api/2/issueLinkType/1",
       "inward": "is blocked by",
-      "outward": "blocks"
+      "outward": "blocks",
+      "self": "https://test.atlassian.net/rest/api/2/issueLinkType/10000"
     },
     {
-      "id": 2,
+      "id": "10001",
       "name": "Cloners",
-      "self": "https://test.atlassian.net/rest/api/2/issueLinkType/2",
       "inward": "is cloned by",
-      "outward": "clones"
+      "outward": "clones",
+      "self": "https://test.atlassian.net/rest/api/2/issueLinkType/10001"
     },
     {
-      "id": 3,
+      "id": "10002",
+      "name": "Duplicate",
+      "inward": "is duplicated by",
+      "outward": "duplicates",
+      "self": "https://test.atlassian.net/rest/api/2/issueLinkType/10002"
+    },
+    {
+      "id": "10003",
       "name": "Relates",
-      "self": "https://test.atlassian.net/rest/api/2/issueLinkType/3",
       "inward": "relates to",
-      "outward": "relates to"
+      "outward": "relates to",
+      "self": "https://test.atlassian.net/rest/api/2/issueLinkType/10003"
     }
   ]
 }

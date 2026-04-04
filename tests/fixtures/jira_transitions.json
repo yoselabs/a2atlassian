@@ -1,25 +1,27 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-05T00:00:00Z",
-    "library_version": "placeholder",
-    "api_method": "get_issue_transitions",
-    "args": ["TEST-1"],
+    "recorded_at": "2026-04-04T23:31:41.805329+00:00",
+    "library_version": "4.0.7",
+    "api_method": "client._jira.get_issue_transitions",
+    "args": [
+      "AT-1"
+    ],
     "cloud": true
   },
   "items": [
     {
-      "id": 11,
       "name": "To Do",
+      "id": 11,
       "to": "To Do"
     },
     {
-      "id": 21,
       "name": "In Progress",
+      "id": 21,
       "to": "In Progress"
     },
     {
-      "id": 31,
       "name": "Done",
+      "id": 31,
       "to": "Done"
     }
   ]

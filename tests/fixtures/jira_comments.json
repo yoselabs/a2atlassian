@@ -1,79 +1,92 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-05T00:00:00Z",
-    "library_version": "placeholder",
-    "api_method": "issue_get_comments",
-    "args": ["TEST-1"],
+    "recorded_at": "2026-04-04T23:31:42.147175+00:00",
+    "library_version": "4.0.7",
+    "api_method": "client._jira.issue_get_comments",
+    "args": [
+      "AT-1"
+    ],
     "cloud": true
   },
+  "startAt": 0,
+  "maxResults": 100,
+  "total": 2,
   "comments": [
     {
-      "id": "10100",
+      "self": "https://test.atlassian.net/rest/api/2/issue/10039/comment/10003",
+      "id": "10003",
       "author": {
-        "displayName": "Test User 1",
-        "accountId": "user-001"
+        "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
+        "accountId": "user-001",
+        "emailAddress": "user@example.com",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "24x24": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "16x16": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "32x32": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png"
+        },
+        "displayName": "Test User 2",
+        "active": true,
+        "timeZone": "Europe/Moscow",
+        "accountType": "atlassian"
       },
+      "body": "Started working on the auth module. Setting up passport.js.",
       "updateAuthor": {
-        "displayName": "Test User 1",
-        "accountId": "user-001"
+        "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
+        "accountId": "user-001",
+        "emailAddress": "user@example.com",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "24x24": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "16x16": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "32x32": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png"
+        },
+        "displayName": "Test User 2",
+        "active": true,
+        "timeZone": "Europe/Moscow",
+        "accountType": "atlassian"
       },
-      "body": "This is a plain text comment on the issue.",
-      "created": "2026-01-01T12:00:00.000+0000",
-      "updated": "2026-01-01T12:00:00.000+0000"
+      "created": "2026-04-05T02:30:08.460+0300",
+      "updated": "2026-04-05T02:30:08.460+0300",
+      "jsdPublic": true
     },
     {
-      "id": "10101",
+      "self": "https://test.atlassian.net/rest/api/2/issue/10039/comment/10004",
+      "id": "10004",
       "author": {
+        "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
+        "accountId": "user-001",
+        "emailAddress": "user@example.com",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "24x24": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "16x16": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "32x32": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png"
+        },
         "displayName": "Test User 2",
-        "accountId": "user-002"
+        "active": true,
+        "timeZone": "Europe/Moscow",
+        "accountType": "atlassian"
       },
+      "body": "Progress update:\n* Login form: done\n* Token storage: in progress\n* Session expiry: not started\n\n{code:javascript}\nconst token = jwt.sign(payload, secret);\n{code}",
       "updateAuthor": {
+        "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
+        "accountId": "user-001",
+        "emailAddress": "user@example.com",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "24x24": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "16x16": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "32x32": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png"
+        },
         "displayName": "Test User 2",
-        "accountId": "user-002"
+        "active": true,
+        "timeZone": "Europe/Moscow",
+        "accountType": "atlassian"
       },
-      "body": {
-        "type": "doc",
-        "version": 1,
-        "content": [
-          {
-            "type": "paragraph",
-            "content": [
-              {
-                "type": "text",
-                "text": "This is an ADF comment body with "
-              },
-              {
-                "type": "text",
-                "text": "rich formatting",
-                "marks": [{"type": "strong"}]
-              },
-              {
-                "type": "text",
-                "text": "."
-              }
-            ]
-          }
-        ]
-      },
-      "created": "2026-01-02T09:00:00.000+0000",
-      "updated": "2026-01-02T09:30:00.000+0000"
-    },
-    {
-      "id": "10102",
-      "author": {
-        "displayName": "Test User 3",
-        "accountId": "user-003"
-      },
-      "updateAuthor": {
-        "displayName": "Test User 3",
-        "accountId": "user-003"
-      },
-      "body": "Looks good to me, merging now.",
-      "created": "2026-01-03T14:00:00.000+0000",
-      "updated": "2026-01-03T14:00:00.000+0000"
+      "created": "2026-04-05T02:30:09.046+0300",
+      "updated": "2026-04-05T02:30:09.046+0300",
+      "jsdPublic": true
     }
-  ],
-  "total": 3,
-  "startAt": 0,
-  "maxResults": 50
+  ]
 }

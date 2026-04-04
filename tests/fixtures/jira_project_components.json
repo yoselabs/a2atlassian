@@ -1,38 +1,33 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-05T00:00:00Z",
-    "library_version": "placeholder",
-    "api_method": "get_project_components",
-    "args": ["TEST"],
+    "recorded_at": "2026-04-04T23:31:43.571535+00:00",
+    "library_version": "4.0.7",
+    "api_method": "client._jira.get_project_components",
+    "args": [
+      "AT"
+    ],
     "cloud": true
   },
   "items": [
     {
-      "id": 1,
+      "self": "https://test.atlassian.net/rest/api/2/component/10000",
+      "id": "10000",
       "name": "Backend",
-      "self": "https://test.atlassian.net/rest/api/2/component/1",
-      "lead": {
-        "displayName": "Test User 1",
-        "accountId": "user-001"
-      }
+      "assigneeType": "PROJECT_DEFAULT",
+      "realAssigneeType": "PROJECT_DEFAULT",
+      "isAssigneeTypeValid": false,
+      "project": "AT",
+      "projectId": 10035
     },
     {
-      "id": 2,
+      "self": "https://test.atlassian.net/rest/api/2/component/10001",
+      "id": "10001",
       "name": "Frontend",
-      "self": "https://test.atlassian.net/rest/api/2/component/2",
-      "lead": {
-        "displayName": "Test User 2",
-        "accountId": "user-002"
-      }
-    },
-    {
-      "id": 3,
-      "name": "Infrastructure",
-      "self": "https://test.atlassian.net/rest/api/2/component/3",
-      "lead": {
-        "displayName": "Test User 3",
-        "accountId": "user-003"
-      }
+      "assigneeType": "PROJECT_DEFAULT",
+      "realAssigneeType": "PROJECT_DEFAULT",
+      "isAssigneeTypeValid": false,
+      "project": "AT",
+      "projectId": 10035
     }
   ]
 }

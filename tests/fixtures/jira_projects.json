@@ -1,44 +1,89 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-05T00:00:00Z",
-    "library_version": "placeholder",
-    "api_method": "projects",
+    "recorded_at": "2026-04-04T23:31:43.138245+00:00",
+    "library_version": "4.0.7",
+    "api_method": "client._jira.projects",
     "args": [],
     "cloud": true
   },
   "items": [
     {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://test.atlassian.net/rest/api/2/project/10035",
+      "id": "10035",
+      "key": "AT",
+      "name": "a2atlassian Test",
+      "avatarUrls": {
+        "48x48": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404",
+        "24x24": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404?size=small",
+        "16x16": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404?size=xsmall",
+        "32x32": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404?size=medium"
+      },
+      "projectTypeKey": "software",
+      "simplified": false,
+      "style": "classic",
+      "isPrivate": false,
+      "properties": {}
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://test.atlassian.net/rest/api/2/project/10000",
+      "id": "10000",
+      "key": "KAN",
+      "name": "My Kanban Space",
+      "avatarUrls": {
+        "48x48": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10415",
+        "24x24": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10415?size=small",
+        "16x16": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10415?size=xsmall",
+        "32x32": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10415?size=medium"
+      },
+      "projectTypeKey": "software",
+      "simplified": true,
+      "style": "next-gen",
+      "isPrivate": false,
+      "properties": {},
+      "entityId": "54316459-195b-4935-a39c-e0741697190d",
+      "uuid": "54316459-195b-4935-a39c-e0741697190d"
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://test.atlassian.net/rest/api/2/project/10033",
+      "id": "10033",
+      "key": "ST",
+      "name": "Scrum Test",
+      "avatarUrls": {
+        "48x48": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10403",
+        "24x24": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10403?size=small",
+        "16x16": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10403?size=xsmall",
+        "32x32": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10403?size=medium"
+      },
+      "projectTypeKey": "software",
+      "simplified": true,
+      "style": "next-gen",
+      "isPrivate": false,
+      "properties": {},
+      "entityId": "78c5d401-2f13-4b4e-bc80-6dd02bd859ef",
+      "uuid": "78c5d401-2f13-4b4e-bc80-6dd02bd859ef"
+    },
+    {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://test.atlassian.net/rest/api/2/project/10034",
+      "id": "10034",
       "key": "TEST",
       "name": "Test Project",
-      "self": "https://test.atlassian.net/rest/api/2/project/10000",
-      "id": 10000,
-      "lead": {
-        "displayName": "Test User 1",
-        "accountId": "user-001"
+      "avatarUrls": {
+        "48x48": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407",
+        "24x24": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407?size=small",
+        "16x16": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407?size=xsmall",
+        "32x32": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407?size=medium"
       },
-      "projectTypeKey": "software"
-    },
-    {
-      "key": "DEV",
-      "name": "Development",
-      "self": "https://test.atlassian.net/rest/api/2/project/10001",
-      "id": 10001,
-      "lead": {
-        "displayName": "Test User 2",
-        "accountId": "user-002"
-      },
-      "projectTypeKey": "software"
-    },
-    {
-      "key": "OPS",
-      "name": "Operations",
-      "self": "https://test.atlassian.net/rest/api/2/project/10002",
-      "id": 10002,
-      "lead": {
-        "displayName": "Test User 3",
-        "accountId": "user-003"
-      },
-      "projectTypeKey": "service_desk"
+      "projectTypeKey": "software",
+      "simplified": true,
+      "style": "next-gen",
+      "isPrivate": false,
+      "properties": {},
+      "entityId": "d2d6bc8d-7439-4107-b0c3-5806f9ba8c7f",
+      "uuid": "d2d6bc8d-7439-4107-b0c3-5806f9ba8c7f"
     }
   ]
 }

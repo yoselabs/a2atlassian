@@ -1,48 +1,79 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-05T00:00:00Z",
-    "library_version": "placeholder",
-    "api_method": "boards",
+    "recorded_at": "2026-04-04T23:31:44.529276+00:00",
+    "library_version": "4.0.7",
+    "api_method": "client._jira.get_all_agile_boards",
     "args": [],
     "cloud": true
   },
+  "maxResults": 50,
+  "startAt": 0,
+  "total": 4,
+  "isLast": true,
   "values": [
     {
       "id": 1,
-      "name": "TEST Scrum Board",
-      "type": "scrum",
       "self": "https://test.atlassian.net/rest/agile/1.0/board/1",
+      "name": "KAN board",
+      "type": "simple",
       "location": {
-        "projectKey": "TEST",
-        "displayName": "Test Project",
-        "projectName": "Test Project"
-      }
+        "projectId": 10000,
+        "displayName": "Test User 3",
+        "projectName": "My Kanban Space",
+        "projectKey": "KAN",
+        "projectTypeKey": "software",
+        "avatarURI": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10415?size=small",
+        "name": "My Kanban Space (KAN)"
+      },
+      "isPrivate": false
     },
     {
-      "id": 2,
-      "name": "TEST Kanban Board",
-      "type": "kanban",
-      "self": "https://test.atlassian.net/rest/agile/1.0/board/2",
+      "id": 34,
+      "self": "https://test.atlassian.net/rest/agile/1.0/board/34",
+      "name": "ST board",
+      "type": "simple",
       "location": {
-        "projectKey": "TEST",
-        "displayName": "Test Project",
-        "projectName": "Test Project"
-      }
+        "projectId": 10033,
+        "displayName": "Test User 4",
+        "projectName": "Scrum Test",
+        "projectKey": "ST",
+        "projectTypeKey": "software",
+        "avatarURI": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10403?size=small",
+        "name": "Scrum Test (ST)"
+      },
+      "isPrivate": false
     },
     {
-      "id": 3,
-      "name": "DEV Board",
+      "id": 35,
+      "self": "https://test.atlassian.net/rest/agile/1.0/board/35",
+      "name": "TEST board",
+      "type": "simple",
+      "location": {
+        "projectId": 10034,
+        "displayName": "Test User 5",
+        "projectName": "Test Project",
+        "projectKey": "TEST",
+        "projectTypeKey": "software",
+        "avatarURI": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10407?size=small",
+        "name": "Test Project (TEST)"
+      },
+      "isPrivate": false
+    },
+    {
+      "id": 36,
+      "self": "https://test.atlassian.net/rest/agile/1.0/board/36",
+      "name": "AT board",
       "type": "scrum",
-      "self": "https://test.atlassian.net/rest/agile/1.0/board/3",
       "location": {
-        "projectKey": "DEV",
-        "displayName": "Development",
-        "projectName": "Development"
-      }
+        "projectId": 10035,
+        "displayName": "Test User 6",
+        "projectName": "a2atlassian Test",
+        "projectKey": "AT",
+        "projectTypeKey": "software",
+        "avatarURI": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404?size=small",
+        "name": "a2atlassian Test (AT)"
+      },
+      "isPrivate": false
     }
-  ],
-  "total": 3,
-  "startAt": 0,
-  "maxResults": 50,
-  "isLast": true
+  ]
 }
