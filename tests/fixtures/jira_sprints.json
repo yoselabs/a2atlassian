@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-04T23:31:44.986096+00:00",
+    "recorded_at": "2026-04-04T23:38:44.966032+00:00",
     "library_version": "4.0.7",
-    "api_method": "client._jira.get_all_sprints_from_board",
+    "api_method": "get_all_sprints_from_board",
     "args": [
       "36"
     ],
@@ -10,15 +10,24 @@
   },
   "maxResults": 50,
   "startAt": 0,
-  "total": 1,
+  "total": 2,
   "isLast": true,
   "values": [
     {
       "id": 3,
       "self": "https://test.atlassian.net/rest/agile/1.0/sprint/3",
-      "state": "future",
+      "state": "active",
       "name": "AT Sprint 1",
+      "startDate": "2026-04-04T23:38:00.102Z",
+      "endDate": "2026-04-18T23:38:00.102Z",
       "createdDate": "2026-04-04T23:28:12.539Z",
+      "originBoardId": 36
+    },
+    {
+      "id": 4,
+      "self": "https://test.atlassian.net/rest/agile/1.0/sprint/4",
+      "state": "future",
+      "name": "AT Sprint 2",
       "originBoardId": 36
     }
   ]

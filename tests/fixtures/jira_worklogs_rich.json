@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "recorded_at": "2026-04-04T23:38:43.094652+00:00",
+    "library_version": "4.0.7",
+    "api_method": "issue_get_worklog",
+    "args": [
+      "AT-10"
+    ],
+    "cloud": true
+  },
+  "startAt": 0,
+  "maxResults": 5000,
+  "total": 1,
+  "worklogs": [
+    {
+      "self": "https://test.atlassian.net/rest/api/2/issue/10049/worklog/10004",
+      "author": {
+        "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
+        "accountId": "user-001",
+        "emailAddress": "user@example.com",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "24x24": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "16x16": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "32x32": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png"
+        },
+        "displayName": "Test User 2",
+        "active": true,
+        "timeZone": "Europe/Moscow",
+        "accountType": "atlassian"
+      },
+      "updateAuthor": {
+        "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
+        "accountId": "user-001",
+        "emailAddress": "user@example.com",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "24x24": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "16x16": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+          "32x32": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png"
+        },
+        "displayName": "Test User 2",
+        "active": true,
+        "timeZone": "Europe/Moscow",
+        "accountType": "atlassian"
+      },
+      "created": "2026-04-05T02:37:57.130+0300",
+      "updated": "2026-04-05T02:37:57.130+0300",
+      "started": "2026-04-05T02:37:57.119+0300",
+      "timeSpent": "4h 30m",
+      "timeSpentSeconds": 16200,
+      "id": "10004",
+      "issueId": "10049"
+    }
+  ]
+}

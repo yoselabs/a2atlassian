@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-04T23:31:41.805329+00:00",
+    "recorded_at": "2026-04-04T23:38:42.124215+00:00",
     "library_version": "4.0.7",
-    "api_method": "client._jira.get_issue_transitions",
+    "api_method": "get_issue_transitions",
     "args": [
       "AT-1"
     ],

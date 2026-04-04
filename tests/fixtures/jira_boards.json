@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-04T23:31:44.529276+00:00",
+    "recorded_at": "2026-04-04T23:38:44.667427+00:00",
     "library_version": "4.0.7",
-    "api_method": "client._jira.get_all_agile_boards",
+    "api_method": "get_all_agile_boards",
     "args": [],
     "cloud": true
   },

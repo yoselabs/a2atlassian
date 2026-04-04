@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-04T23:31:45.590266+00:00",
+    "recorded_at": "2026-04-04T23:38:45.411551+00:00",
     "library_version": "4.0.7",
-    "api_method": "client._jira.user",
+    "api_method": "user",
     "args": [
       "557058:08842f44-6df4-4bab-96cc-ead4fc202228"
     ],

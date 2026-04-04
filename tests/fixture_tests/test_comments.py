@@ -12,6 +12,16 @@ def _assert_flat(result: dict) -> None:
         assert not isinstance(value, list), f"List at '{key}'"
 
 
+COMMENT_KEYS = {
+    "id",
+    "author",
+    "updated_by",
+    "body",
+    "created",
+    "updated",
+}
+
+
 class TestExtractComment:
     def test_handles_real_shape(self, real_comments):
         comments = real_comments["comments"]
@@ -22,11 +32,15 @@ class TestExtractComment:
     def test_expected_keys(self, real_comments):
         comments = real_comments["comments"]
         result = _extract_comment(comments[0])
-        assert set(result.keys()) == {
-            "id",
-            "author",
-            "updated_by",
-            "body",
-            "created",
-            "updated",
-        }
+        assert set(result.keys()) == COMMENT_KEYS
+
+    def test_rich_wiki_markup_comments(self, real_comments_rich):
+        """Rich comments with wiki markup should extract cleanly as strings."""
+        comments = real_comments_rich["comments"]
+        assert len(comments) >= 1
+        for comment in comments:
+            result = _extract_comment(comment)
+            _assert_flat(result)
+            assert set(result.keys()) == COMMENT_KEYS
+            assert isinstance(result["body"], str)
+            assert result["body"], "Rich comment body should not be empty"

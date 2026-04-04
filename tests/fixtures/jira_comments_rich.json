@@ -1,19 +1,20 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-04T23:38:42.925315+00:00",
+    "recorded_at": "2026-04-04T23:38:42.722240+00:00",
     "library_version": "4.0.7",
-    "api_method": "issue_get_worklog",
+    "api_method": "issue_get_comments",
     "args": [
-      "AT-1"
+      "AT-10"
     ],
     "cloud": true
   },
   "startAt": 0,
-  "maxResults": 5000,
+  "maxResults": 100,
   "total": 2,
-  "worklogs": [
+  "comments": [
     {
-      "self": "https://test.atlassian.net/rest/api/2/issue/10039/worklog/10002",
+      "self": "https://test.atlassian.net/rest/api/2/issue/10049/comment/10006",
+      "id": "10006",
       "author": {
         "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
         "accountId": "user-001",
@@ -29,6 +30,7 @@
         "timeZone": "Europe/Moscow",
         "accountType": "atlassian"
       },
+      "body": "Simple plain text comment.",
       "updateAuthor": {
         "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
         "accountId": "user-001",
@@ -44,16 +46,13 @@
         "timeZone": "Europe/Moscow",
         "accountType": "atlassian"
       },
-      "created": "2026-04-05T02:30:09.911+0300",
-      "updated": "2026-04-05T02:30:09.911+0300",
-      "started": "2026-04-05T02:30:09.901+0300",
-      "timeSpent": "2h",
-      "timeSpentSeconds": 7200,
-      "id": "10002",
-      "issueId": "10039"
+      "created": "2026-04-05T02:37:56.384+0300",
+      "updated": "2026-04-05T02:37:56.384+0300",
+      "jsdPublic": true
     },
     {
-      "self": "https://test.atlassian.net/rest/api/2/issue/10039/worklog/10003",
+      "self": "https://test.atlassian.net/rest/api/2/issue/10049/comment/10007",
+      "id": "10007",
       "author": {
         "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
         "accountId": "user-001",
@@ -69,6 +68,7 @@
         "timeZone": "Europe/Moscow",
         "accountType": "atlassian"
       },
+      "body": "h3. Detailed Review\n\nStatus: *APPROVED*\n\n* Item one\n* Item two\n** Sub-item\n\n{code:python}\ndef hello():\n    print(\"world\")\n{code}\n\n[Link to docs|https://example.com/docs]\n\n{quote}This is a blockquote{quote}\n\n||Col A||Col B||\n|val 1|val 2|",
       "updateAuthor": {
         "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
         "accountId": "user-001",
@@ -84,13 +84,9 @@
         "timeZone": "Europe/Moscow",
         "accountType": "atlassian"
       },
-      "created": "2026-04-05T02:30:10.396+0300",
-      "updated": "2026-04-05T02:30:10.396+0300",
-      "started": "2026-04-05T02:30:10.387+0300",
-      "timeSpent": "30m",
-      "timeSpentSeconds": 1800,
-      "id": "10003",
-      "issueId": "10039"
+      "created": "2026-04-05T02:37:56.729+0300",
+      "updated": "2026-04-05T02:37:56.729+0300",
+      "jsdPublic": true
     }
   ]
 }

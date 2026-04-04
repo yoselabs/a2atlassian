@@ -120,3 +120,48 @@ def real_user():
 @pytest.fixture
 def real_create_issue_response():
     return _load_fixture("jira_create_issue_response.json")
+
+
+@pytest.fixture
+def real_issue_full():
+    return _load_fixture("jira_issue_full.json")
+
+
+@pytest.fixture
+def real_issue_minimal():
+    return _load_fixture("jira_issue_minimal.json")
+
+
+@pytest.fixture
+def real_issue_epic():
+    return _load_fixture("jira_issue_epic.json")
+
+
+@pytest.fixture
+def real_issue_subtask():
+    return _load_fixture("jira_issue_subtask.json")
+
+
+@pytest.fixture
+def real_issue_done():
+    return _load_fixture("jira_issue_done.json")
+
+
+@pytest.fixture
+def real_search_assigned():
+    return _load_fixture("jira_search_assigned.json")
+
+
+@pytest.fixture
+def real_search_labels():
+    return _load_fixture("jira_search_labels.json")
+
+
+@pytest.fixture
+def real_comments_rich():
+    return _load_fixture("jira_comments_rich.json")
+
+
+@pytest.fixture
+def real_worklogs_rich():
+    return _load_fixture("jira_worklogs_rich.json")

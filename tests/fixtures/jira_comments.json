@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-04T23:31:42.147175+00:00",
+    "recorded_at": "2026-04-04T23:38:42.458756+00:00",
     "library_version": "4.0.7",
-    "api_method": "client._jira.issue_get_comments",
+    "api_method": "issue_get_comments",
     "args": [
       "AT-1"
     ],

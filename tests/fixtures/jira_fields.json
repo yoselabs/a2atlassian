@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-04T23:31:43.873304+00:00",
+    "recorded_at": "2026-04-04T23:38:44.146490+00:00",
     "library_version": "4.0.7",
-    "api_method": "client._jira.get_all_fields",
+    "api_method": "get_all_fields",
     "args": [],
     "cloud": true
   },
@@ -493,22 +493,6 @@
       }
     },
     {
-      "id": "priority",
-      "key": "priority",
-      "name": "Priority",
-      "custom": false,
-      "orderable": true,
-      "navigable": true,
-      "searchable": true,
-      "clauseNames": [
-        "priority"
-      ],
-      "schema": {
-        "type": "priority",
-        "system": "priority"
-      }
-    },
-    {
       "id": "customfield_10023",
       "key": "customfield_10023",
       "name": "Target end",
@@ -528,22 +512,19 @@
       }
     },
     {
-      "id": "customfield_10068",
-      "key": "com.atlassian.atlas.jira__project-key",
-      "name": "Project overview key",
-      "untranslatedName": "Project overview key",
-      "custom": true,
+      "id": "priority",
+      "key": "priority",
+      "name": "Priority",
+      "custom": false,
       "orderable": true,
       "navigable": true,
       "searchable": true,
       "clauseNames": [
-        "cf[10068]",
-        "Project overview key"
+        "priority"
       ],
       "schema": {
-        "type": "string",
-        "custom": "read-only-string-issue-field",
-        "customId": 10068
+        "type": "priority",
+        "system": "priority"
       }
     },
     {
@@ -564,6 +545,25 @@
         "items": "sd-sentiment",
         "custom": "com.atlassian.servicedesk.sentiment:sd-sentiment",
         "customId": 10024
+      }
+    },
+    {
+      "id": "customfield_10068",
+      "key": "com.atlassian.atlas.jira__project-key",
+      "name": "Project overview key",
+      "untranslatedName": "Project overview key",
+      "custom": true,
+      "orderable": true,
+      "navigable": true,
+      "searchable": true,
+      "clauseNames": [
+        "cf[10068]",
+        "Project overview key"
+      ],
+      "schema": {
+        "type": "string",
+        "custom": "read-only-string-issue-field",
+        "customId": 10068
       }
     },
     {
@@ -1090,22 +1090,6 @@
       }
     },
     {
-      "id": "security",
-      "key": "security",
-      "name": "Security Level",
-      "custom": false,
-      "orderable": true,
-      "navigable": true,
-      "searchable": true,
-      "clauseNames": [
-        "level"
-      ],
-      "schema": {
-        "type": "securitylevel",
-        "system": "security"
-      }
-    },
-    {
       "id": "customfield_10007",
       "key": "customfield_10007",
       "name": "Change reason",
@@ -1123,6 +1107,22 @@
         "type": "option",
         "custom": "com.atlassian.jira.plugin.system.customfieldtypes:select",
         "customId": 10007
+      }
+    },
+    {
+      "id": "security",
+      "key": "security",
+      "name": "Security Level",
+      "custom": false,
+      "orderable": true,
+      "navigable": true,
+      "searchable": true,
+      "clauseNames": [
+        "level"
+      ],
+      "schema": {
+        "type": "securitylevel",
+        "system": "security"
       }
     },
     {

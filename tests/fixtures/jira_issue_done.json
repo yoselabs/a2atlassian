@@ -1,0 +1,195 @@
+{
+  "_meta": {
+    "recorded_at": "2026-04-04T23:38:40.890687+00:00",
+    "library_version": "4.0.7",
+    "api_method": "issue",
+    "args": [
+      "AT-5"
+    ],
+    "cloud": true
+  },
+  "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations,customfield_10010.requestTypePractice",
+  "id": "10043",
+  "self": "https://test.atlassian.net/rest/api/2/issue/10043",
+  "key": "AT-5",
+  "fields": {
+    "statuscategorychangedate": "2026-04-05T02:30:08.008+0300",
+    "issuetype": {
+      "self": "https://test.atlassian.net/rest/api/2/issuetype/10047",
+      "id": "10047",
+      "description": "A small, distinct piece of work.",
+      "iconUrl": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+      "name": "Task",
+      "subtask": false,
+      "avatarId": 10318,
+      "hierarchyLevel": 0
+    },
+    "timespent": null,
+    "customfield_10030": null,
+    "project": {
+      "self": "https://test.atlassian.net/rest/api/2/project/10035",
+      "id": "10035",
+      "key": "AT",
+      "name": "a2atlassian Test",
+      "projectTypeKey": "software",
+      "simplified": false,
+      "avatarUrls": {
+        "48x48": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404",
+        "24x24": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404?size=small",
+        "16x16": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404?size=xsmall",
+        "32x32": "https://test.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10404?size=medium"
+      }
+    },
+    "customfield_10031": null,
+    "customfield_10032": null,
+    "fixVersions": [],
+    "aggregatetimespent": null,
+    "customfield_10034": null,
+    "statusCategory": {
+      "self": "https://test.atlassian.net/rest/api/2/statuscategory/3",
+      "id": 3,
+      "key": "done",
+      "colorName": "green",
+      "name": "Done"
+    },
+    "customfield_10035": null,
+    "resolution": {
+      "self": "https://test.atlassian.net/rest/api/2/resolution/10000",
+      "id": "10000",
+      "description": "Work has been completed on this issue.",
+      "name": "Done"
+    },
+    "customfield_10027": "3_*:*_1_*:*_0_*|*_10041_*:*_1_*:*_1658",
+    "customfield_10028": null,
+    "customfield_10029": null,
+    "resolutiondate": "2026-04-05T02:30:07.967+0300",
+    "workratio": -1,
+    "watches": {
+      "self": "https://test.atlassian.net/rest/api/2/issue/AT-5/watchers",
+      "watchCount": 1,
+      "isWatching": true
+    },
+    "lastViewed": null,
+    "created": "2026-04-05T02:30:05.843+0300",
+    "customfield_10020": null,
+    "customfield_10021": null,
+    "customfield_10022": null,
+    "customfield_10023": null,
+    "priority": {
+      "self": "https://test.atlassian.net/rest/api/2/priority/2",
+      "iconUrl": "https://test.atlassian.net/images/icons/priorities/high_new.svg",
+      "name": "High",
+      "id": "2"
+    },
+    "customfield_10024": null,
+    "customfield_10068": null,
+    "customfield_10025": null,
+    "customfield_10069": null,
+    "labels": [
+      "infra"
+    ],
+    "customfield_10026": null,
+    "customfield_10016": null,
+    "customfield_10017": null,
+    "customfield_10019": "0|i00027:",
+    "timeestimate": null,
+    "aggregatetimeoriginalestimate": null,
+    "versions": [],
+    "issuelinks": [],
+    "assignee": null,
+    "updated": "2026-04-05T02:30:08.007+0300",
+    "status": {
+      "self": "https://test.atlassian.net/rest/api/2/status/10042",
+      "description": "",
+      "iconUrl": "https://test.atlassian.net/",
+      "name": "Done",
+      "id": "10042",
+      "statusCategory": {
+        "self": "https://test.atlassian.net/rest/api/2/statuscategory/3",
+        "id": 3,
+        "key": "done",
+        "colorName": "green",
+        "name": "Done"
+      }
+    },
+    "components": [],
+    "timeoriginalestimate": null,
+    "description": null,
+    "customfield_10010": null,
+    "customfield_10014": null,
+    "customfield_10015": null,
+    "timetracking": {},
+    "customfield_10005": null,
+    "customfield_10006": null,
+    "customfield_10007": null,
+    "security": null,
+    "customfield_10008": null,
+    "attachment": [],
+    "customfield_10009": null,
+    "aggregatetimeestimate": null,
+    "summary": "Set up CI pipeline",
+    "creator": {
+      "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
+      "accountId": "user-001",
+      "emailAddress": "user@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+        "24x24": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+        "16x16": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+        "32x32": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png"
+      },
+      "displayName": "Test User 2",
+      "active": true,
+      "timeZone": "Europe/Moscow",
+      "accountType": "atlassian"
+    },
+    "subtasks": [],
+    "reporter": {
+      "self": "https://test.atlassian.net/rest/api/2/user?accountId=557058%3A08842f44-6df4-4bab-96cc-ead4fc202228",
+      "accountId": "user-001",
+      "emailAddress": "user@example.com",
+      "avatarUrls": {
+        "48x48": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+        "24x24": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+        "16x16": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png",
+        "32x32": "https://secure.gravatar.com/avatar/e34715aa3a7f5128fb7a817bd0f5f9d9?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FDT-6.png"
+      },
+      "displayName": "Test User 2",
+      "active": true,
+      "timeZone": "Europe/Moscow",
+      "accountType": "atlassian"
+    },
+    "aggregateprogress": {
+      "progress": 0,
+      "total": 0
+    },
+    "customfield_10001": null,
+    "customfield_10002": [],
+    "customfield_10003": null,
+    "customfield_10004": null,
+    "environment": null,
+    "duedate": null,
+    "progress": {
+      "progress": 0,
+      "total": 0
+    },
+    "votes": {
+      "self": "https://test.atlassian.net/rest/api/2/issue/AT-5/votes",
+      "votes": 0,
+      "hasVoted": false
+    },
+    "comment": {
+      "comments": [],
+      "self": "https://test.atlassian.net/rest/api/2/issue/10043/comment",
+      "maxResults": 0,
+      "total": 0,
+      "startAt": 0
+    },
+    "worklog": {
+      "startAt": 0,
+      "maxResults": 20,
+      "total": 0,
+      "worklogs": []
+    }
+  }
+}

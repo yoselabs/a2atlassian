@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "recorded_at": "2026-04-04T23:31:43.571535+00:00",
+    "recorded_at": "2026-04-04T23:38:43.912823+00:00",
     "library_version": "4.0.7",
-    "api_method": "client._jira.get_project_components",
+    "api_method": "get_project_components",
     "args": [
       "AT"
     ],
