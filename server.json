@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.agentic-eng/a2atlassian",
+  "description": "Agent-to-Atlassian — Jira & Confluence access for AI agents. Pre-configured connections, compact output, error enrichment.",
+  "repository": {
+    "url": "https://github.com/agentic-eng/a2atlassian",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "a2atlassian",
+      "version": "0.1.0",
+      "runtime": "python",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": []
+    }
+  ]
+}
