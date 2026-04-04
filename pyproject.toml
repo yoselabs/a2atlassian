@@ -5,7 +5,7 @@ description = "Agent-to-Atlassian — CLI and MCP server for AI agents to work w
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"
-authors = [{name = "Alice Smith"}]
+authors = [{name = "Denis Tomilin"}]
 keywords = ["mcp", "mcp-server", "model-context-protocol", "atlassian", "jira", "confluence", "agent", "ai", "llm"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -48,6 +48,7 @@ ignore = [
     "SIM108", "SIM110", "RUF001", "RUF015",
     "EM101", "EM102", "FBT001", "FBT002", "PLR0913", "PLR2004", "ARG001",
     "A003", "PT001", "PT023", "PERF203", "RET504", "PLW2901",
+    "SLF001",
 ]
 
 [tool.ruff.lint.mccabe]
@@ -97,4 +98,8 @@ dev = [
     "ruff>=0.9",
     "pytest-env>=1.6.0",
     "pytest-asyncio>=0.24",
+    "ty>=0.0.28",
 ]
+
+[tool.ty.src]
+exclude = ["tests/"]
