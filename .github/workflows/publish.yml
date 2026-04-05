@@ -1,4 +1,4 @@
-name: Publish to PyPI
+name: Publish to PyPI & MCP Registry
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 
 permissions:
   id-token: write
+  contents: read
 
 jobs:
   check:
@@ -19,12 +20,30 @@ jobs:
       - run: uv run ruff format --check
       - run: uv run pytest tests/ -v
 
-  publish:
+  publish-pypi:
     needs: check
     runs-on: ubuntu-latest
     environment: pypi
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - run: uv build
       - uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-mcp-registry:
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install mcp-publisher
+        run: |
+          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+      - name: Authenticate via GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+      - name: Publish to MCP Registry
+        run: ./mcp-publisher publish
