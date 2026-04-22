@@ -10,8 +10,7 @@ from a2atlassian.client import AtlassianClient
 from a2atlassian.config import DEFAULT_CONFIG_DIR
 from a2atlassian.connections import ConnectionInfo, ConnectionStore
 from a2atlassian.errors import ErrorEnricher
-from a2atlassian.jira_read_tools import register_jira_read_tools
-from a2atlassian.jira_write_tools import register_jira_write_tools
+from a2atlassian.jira_tools import FEATURES as JIRA_FEATURES
 
 server = FastMCP(
     "a2atlassian",
@@ -97,10 +96,25 @@ def list_connections(project: str | None = None) -> str:
     return "\n".join(lines)
 
 
-# --- Register Jira tools ---
+# --- Tool registration ---
 
-register_jira_read_tools(server, _get_client, _enricher)
-register_jira_write_tools(server, _get_connection, _enricher)
+
+def _register_jira_tools(features: set[str] | None) -> None:
+    """Register Jira tools filtered by feature set. None means all features.
+
+    Note: must be called from main(), not at import time, so --enable can filter.
+    """
+    if features is not None:
+        unknown = features - set(JIRA_FEATURES.keys())
+        if unknown:
+            sys.exit(f"Error: unknown Jira feature(s): {', '.join(sorted(unknown))}. Available: {', '.join(sorted(JIRA_FEATURES.keys()))}")
+    for name, mod in JIRA_FEATURES.items():
+        if features is not None and name not in features:
+            continue
+        if hasattr(mod, "register_read"):
+            mod.register_read(server, _get_client, _enricher)
+        if hasattr(mod, "register_write"):
+            mod.register_write(server, _get_connection, _enricher)
 
 
 # --- CLI argument parsing ---
@@ -151,6 +165,51 @@ def _parse_scope_args(args: list[str]) -> list[str]:
     return scopes
 
 
+def _parse_enable_args(args: list[str]) -> dict[str, set[str] | None]:
+    """Parse --enable args into a domain->features mapping.
+
+    Examples:
+        --enable jira              -> {"jira": None}        (all features)
+        --enable jira:issues,sprints -> {"jira": {"issues", "sprints"}}
+        --enable jira --enable confluence -> {"jira": None, "confluence": None}
+
+    Returns empty dict when no --enable flags are given (means enable everything).
+    """
+    result: dict[str, set[str] | None] = {}
+    i = 0
+    while i < len(args):
+        if args[i] == "--enable" and i + 1 < len(args):
+            spec = args[i + 1]
+            if ":" in spec:
+                domain, features_str = spec.split(":", 1)
+                features = {f.strip() for f in features_str.split(",") if f.strip()}
+                existing = result.get(domain)
+                if existing is None and domain in result:
+                    pass  # already enabling all — keep it
+                elif existing is not None:
+                    result[domain] = existing | features
+                else:
+                    result[domain] = features
+            else:
+                result[spec] = None  # None = all features
+            i += 2
+        else:
+            i += 1
+    return result
+
+
+def _domain_enabled(domain: str, enable: dict[str, set[str] | None]) -> bool:
+    """Check if a domain is enabled. Empty enable dict means everything is enabled."""
+    return not enable or domain in enable
+
+
+def _domain_features(domain: str, enable: dict[str, set[str] | None]) -> set[str] | None:
+    """Get enabled features for a domain. Returns None if all features are enabled."""
+    if not enable or domain not in enable:
+        return None
+    return enable[domain]
+
+
 def main() -> None:
     """Run the MCP server (stdio transport)."""
     global _scope_filter  # noqa: PLW0603
@@ -161,6 +220,18 @@ def main() -> None:
         _ephemeral_connections[conn.project] = conn
 
     _scope_filter = _parse_scope_args(args)
+    enable = _parse_enable_args(args)
+
+    # Validate domain names
+    if enable:
+        known_domains = {"jira"}  # add "confluence" when it ships
+        unknown_domains = set(enable.keys()) - known_domains
+        if unknown_domains:
+            sys.exit(f"Error: unknown domain(s): {', '.join(sorted(unknown_domains))}. Available: {', '.join(sorted(known_domains))}")
+
+    # Register domain tools based on --enable flags
+    if _domain_enabled("jira", enable):
+        _register_jira_tools(_domain_features("jira", enable))
 
     server.run()
 

@@ -2,9 +2,19 @@
 
 from __future__ import annotations
 
+import inspect
+from unittest.mock import MagicMock
+
 import pytest
 
-from a2atlassian.mcp_server import _parse_register_args, _parse_scope_args
+from a2atlassian.connections import ConnectionInfo
+from a2atlassian.jira_tools import FEATURES as JIRA_FEATURES
+from a2atlassian.mcp_server import (
+    _parse_enable_args,
+    _parse_register_args,
+    _parse_scope_args,
+    _register_jira_tools,
+)
 
 
 class TestParseRegisterArgs:
@@ -68,3 +78,199 @@ class TestParseScopeArgs:
         args = ["--scope", "myproject", "--register", "b", "u", "e", "t"]
         result = _parse_scope_args(args)
         assert result == ["myproject"]
+
+
+class TestParseEnableArgs:
+    def test_no_enable(self) -> None:
+        assert _parse_enable_args([]) == {}
+
+    def test_domain_only(self) -> None:
+        result = _parse_enable_args(["--enable", "jira"])
+        assert result == {"jira": None}
+
+    def test_domain_with_features(self) -> None:
+        result = _parse_enable_args(["--enable", "jira:issues,sprints"])
+        assert result == {"jira": {"issues", "sprints"}}
+
+    def test_multiple_domains(self) -> None:
+        result = _parse_enable_args(["--enable", "jira", "--enable", "confluence"])
+        assert result == {"jira": None, "confluence": None}
+
+    def test_domain_all_overrides_features(self) -> None:
+        """--enable jira should override --enable jira:issues."""
+        result = _parse_enable_args(["--enable", "jira:issues", "--enable", "jira"])
+        assert result == {"jira": None}
+
+    def test_features_merge(self) -> None:
+        """Multiple --enable jira:X should merge feature sets."""
+        result = _parse_enable_args(["--enable", "jira:issues", "--enable", "jira:sprints,boards"])
+        assert result == {"jira": {"issues", "sprints", "boards"}}
+
+    def test_mixed_with_other_args(self) -> None:
+        args = ["--scope", "myproject", "--enable", "jira:issues", "--register", "b", "u", "e", "t"]
+        result = _parse_enable_args(args)
+        assert result == {"jira": {"issues"}}
+
+    def test_whitespace_in_features(self) -> None:
+        result = _parse_enable_args(["--enable", "jira: issues , sprints "])
+        assert result == {"jira": {"issues", "sprints"}}
+
+    def test_empty_features_ignored(self) -> None:
+        result = _parse_enable_args(["--enable", "jira:issues,,sprints"])
+        assert result == {"jira": {"issues", "sprints"}}
+
+
+class TestToolRegistrationFiltering:
+    """Test that --enable filtering actually controls which tools get registered."""
+
+    def _make_server(self):
+        from mcp.server.fastmcp import FastMCP
+
+        return FastMCP("test")
+
+    def _tool_names(self, srv) -> set[str]:
+        return set(srv._tool_manager._tools.keys())
+
+    def test_all_jira_tools_registered_by_default(self, monkeypatch) -> None:
+        """features=None registers all Jira tools."""
+        srv = self._make_server()
+        monkeypatch.setattr("a2atlassian.mcp_server.server", srv)
+        _register_jira_tools(features=None)
+        names = self._tool_names(srv)
+        # Sanity check: at least one tool per feature registered
+        assert len(names) >= len(JIRA_FEATURES)
+        assert "jira_get_issue" in names
+        assert "jira_create_issue" in names
+        assert "jira_get_sprints" in names
+
+    def test_only_issues_feature(self, monkeypatch) -> None:
+        srv = self._make_server()
+        monkeypatch.setattr("a2atlassian.mcp_server.server", srv)
+        _register_jira_tools(features={"issues"})
+        names = self._tool_names(srv)
+        assert names == {
+            "jira_get_issue",
+            "jira_search",
+            "jira_get_issue_dev_info",
+            "jira_create_issue",
+            "jira_update_issue",
+            "jira_delete_issue",
+        }
+
+    def test_unknown_feature_exits(self, monkeypatch) -> None:
+        srv = self._make_server()
+        monkeypatch.setattr("a2atlassian.mcp_server.server", srv)
+        with pytest.raises(SystemExit) as exc_info:
+            _register_jira_tools(features={"isues"})  # typo
+        assert "isues" in str(exc_info.value)
+        assert "Available:" in str(exc_info.value)
+
+    def test_empty_features_registers_nothing(self, monkeypatch) -> None:
+        srv = self._make_server()
+        monkeypatch.setattr("a2atlassian.mcp_server.server", srv)
+        _register_jira_tools(features=set())
+        assert self._tool_names(srv) == set()
+
+    def test_multiple_features(self, monkeypatch) -> None:
+        srv = self._make_server()
+        monkeypatch.setattr("a2atlassian.mcp_server.server", srv)
+        _register_jira_tools(features={"issues", "comments"})
+        names = self._tool_names(srv)
+        assert "jira_get_issue" in names
+        assert "jira_get_comments" in names
+        assert "jira_add_comment" in names
+        assert "jira_get_sprints" not in names
+        assert "jira_create_sprint" not in names
+
+
+def _dummy_value(param: inspect.Parameter) -> object:
+    """Generate a plausible dummy value based on type annotation."""
+    ann = param.annotation
+    if ann is inspect.Parameter.empty:
+        return "test"
+    ann_str = str(ann) if not isinstance(ann, str) else ann
+    if "list" in ann_str:
+        return ["TEST-1"]
+    if ann_str == "dict" or "dict" in ann_str:
+        return {}
+    if ann_str == "int":
+        return 1
+    if ann_str == "bool":
+        return True
+    return "test"
+
+
+class TestToolWrapperExecution:
+    """Call every registered tool wrapper to cover the try/except/format bodies."""
+
+    @staticmethod
+    def _build_kwargs(fn) -> dict:
+        sig = inspect.signature(fn)
+        kwargs = {}
+        for name, param in sig.parameters.items():
+            if param.default is not inspect.Parameter.empty:
+                continue  # skip optional params — defaults are fine
+            kwargs[name] = _dummy_value(param)
+        return kwargs
+
+    @staticmethod
+    def _register_and_split(*, read_only=False):
+        """Register all tools, return (server, read_tool_names, write_tool_names)."""
+        from mcp.server.fastmcp import FastMCP
+
+        from a2atlassian.errors import ErrorEnricher
+        from a2atlassian.jira_tools import FEATURES as JIRA_FEATURES
+
+        srv = FastMCP("test")
+        mock_client = MagicMock()
+        conn = ConnectionInfo(
+            project="test",
+            url="https://test.atlassian.net",
+            email="t@t.com",
+            token="tok",
+            read_only=read_only,
+        )
+        enricher = ErrorEnricher()
+        read_names: set[str] = set()
+        write_names: set[str] = set()
+
+        for mod in JIRA_FEATURES.values():
+            before = set(srv._tool_manager._tools.keys())
+            if hasattr(mod, "register_read"):
+                mod.register_read(srv, lambda _p: mock_client, enricher)
+            after_read = set(srv._tool_manager._tools.keys())
+            read_names |= after_read - before
+            if hasattr(mod, "register_write"):
+                mod.register_write(srv, lambda _p: conn, enricher)
+            write_names |= set(srv._tool_manager._tools.keys()) - after_read
+
+        return srv, read_names, write_names
+
+    async def test_all_read_tools_execute(self) -> None:
+        """Every read tool wrapper body executes without crashing."""
+        srv, read_names, _ = self._register_and_split()
+        assert len(read_names) == 18
+        for name in read_names:
+            tool = srv._tool_manager._tools[name]
+            kwargs = self._build_kwargs(tool.fn)
+            result = await tool.fn(**kwargs)
+            assert isinstance(result, str), f"{name} did not return str"
+
+    async def test_all_write_tools_execute(self) -> None:
+        """Every write tool wrapper body executes (writable connection)."""
+        srv, _, write_names = self._register_and_split(read_only=False)
+        assert len(write_names) == 16
+        for name in write_names:
+            tool = srv._tool_manager._tools[name]
+            kwargs = self._build_kwargs(tool.fn)
+            result = await tool.fn(**kwargs)
+            assert isinstance(result, str), f"{name} did not return str"
+
+    async def test_write_tools_read_only_guard(self) -> None:
+        """Write tools return error when connection is read-only."""
+        srv, _, write_names = self._register_and_split(read_only=True)
+        for name in write_names:
+            tool = srv._tool_manager._tools[name]
+            kwargs = self._build_kwargs(tool.fn)
+            result = await tool.fn(**kwargs)
+            assert "read-only" in result, f"{name} did not enforce read-only"
