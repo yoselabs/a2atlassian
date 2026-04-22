@@ -4,7 +4,9 @@
 **Source signals:** `2026-04-23-2105-a2atlassian-confluence-gaps.yaml`, `2026-04-23-2120-protea-atlassian-session-scan.yaml`, `2026-04-23-2210-protea-final-pass.yaml`
 **Handover brief:** `docs/signals-from-protea-2026-04-23.md` (signals S3, S4, S5; related S11)
 **Target release:** v0.4.0
-**Precondition:** v0.3.0 (cleanup batch) ships first. This spec assumes the decorator, renamed `connection` parameter, and consolidated tool surface from v0.3.0 are in place.
+**Precondition:** v0.3.0 (cleanup batch) ships first. This spec assumes the `@mcp_tool` decorator, renamed `connection` parameter, and consolidated tool surface from v0.3.0 are in place.
+
+**Client-layer refactor is owned by this spec, not v0.3.0.** v0.3.0 leaves `src/a2atlassian/client.py` / `AtlassianClient` unchanged. The split into `AtlassianClientBase` + `JiraClient` + `ConfluenceClient` (see Architecture section below) is the first implementation step of v0.4.0, before any Confluence tool work begins.
 
 ---
 
@@ -22,7 +24,7 @@ Success criteria: Protea's daily-report workflow should write all of its six pag
 
 - `confluence_get_page(connection, page_id, expand=None)` — fetch one page. `expand` defaults to `"body.storage,version,space"`.
 - `confluence_get_page_children(connection, page_id, limit=50, offset=0)` — list children.
-- `confluence_search(connection, cql, limit=25)` — CQL search with minimal default fields.
+- `confluence_search(connection, cql, limit=25, offset=0)` — CQL search with minimal default fields.
 
 **Write:**
 
@@ -76,10 +78,12 @@ Where each `PageUpsertSpec` is:
 **Identity resolution** — per page in the batch, in order:
 
 1. If `page_id` given → update that page. Error if not found.
-2. Else if `parent_id` given → search under parent for matching title. Update if found, create if not.
-3. Else → search in space root for matching title. Update-or-create.
+2. Else if `parent_id` given → search for a title match **under that parent only**. Update if found, create if not.
+3. Else → search in space root (top-level pages only) for matching title. Update-or-create.
 
-Eliminates the duplicate-title failure on re-run (13+ occurrences in a single Protea session) structurally. Caller can cache the returned `page_id` to fast-path subsequent upserts.
+**Title-match scope is strictly per-parent, never per-space.** A page with the same title under a different parent does not count as a match. The trade-off: re-running with a different `parent_id` will create a new page rather than re-use the existing one elsewhere in the space. This is deliberate — per-space title uniqueness would re-introduce the ambiguity that makes sooperset's current behavior fragile (two managers can legitimately have a "2026-04-23 report" under different sprint parents). Callers that need cross-space deduplication should cache `page_id` from a prior run.
+
+Eliminates the duplicate-title failure on re-run (13+ occurrences in a single Protea session) within the expected scope (same parent, same title). Caller can cache the returned `page_id` to fast-path subsequent upserts regardless of parent.
 
 **Return shape** (JSON):
 
@@ -113,7 +117,7 @@ Implements D2 from the brainstorm. `content_format="markdown"` (default) runs th
 |---|---|
 | `# / ## / ###` headings | `<h1>` / `<h2>` / `<h3>` |
 | pipe-syntax tables | native `<table><tbody><tr><th>...` |
-| `<details><summary>X</summary>...</details>` | `<ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">X</ac:parameter><ac:rich-text-body>...</ac:rich-text-body></ac:structured-macro>` (encodes S11 permanently) |
+| `<details><summary>X</summary>...</details>` | `<ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">X</ac:parameter><ac:rich-text-body>...</ac:rich-text-body></ac:structured-macro>` (encodes S11 permanently). Translator is **recursive** — markdown inside the `<details>` body is re-parsed through the full rule set, including nested tables, code fences, and nested details. |
 | `@user:<accountId>` | `<ac:link><ri:user ri:account-id="..."/></ac:link>` |
 | code fences with language | `<ac:structured-macro ac:name="code">` with `ac:parameter ac:name="language"` |
 | HTML passthrough | unchanged (Confluence storage is HTML-shaped) |
@@ -126,7 +130,15 @@ Critically, the translator re-parses markdown *inside* HTML `<details>` bodies �
 
 ### Client + module architecture — D5
 
-`JiraClient` and `ConfluenceClient` as separate classes, both extending a small `AtlassianClientBase` that owns auth, retry, and rate limiting:
+**Refactor step (must happen before any Confluence tool is written).** Today's `src/a2atlassian/client.py` contains a single `AtlassianClient` that wraps `atlassian.Jira`. Split into:
+
+- `AtlassianClientBase` in `client.py` — owns `__init__(ConnectionInfo)`, the `_call(fn, *args, **kwargs)` retry helper, the class-level `MAX_RETRIES` / `RETRY_BACKOFF` / `REQUEST_TIMEOUT` constants, and `validate()` (which calls `/myself` — works for both services but currently uses Jira's client — move to base by calling whichever service's `/myself` is configured, or keep Jira-only and add a Confluence-side `validate()` in the subclass).
+- `JiraClient(AtlassianClientBase)` in `jira_client.py` — owns the lazy `_jira` property (moves from current `AtlassianClient`).
+- `ConfluenceClient(AtlassianClientBase)` in `confluence_client.py` — owns the lazy `_confluence` property.
+
+Every existing caller of `AtlassianClient` in `jira/` and `jira_tools/` changes to `JiraClient`. This is a mechanical rename + an import change; no logic moves.
+
+Resulting directory layout:
 
 ```
 src/a2atlassian/
@@ -168,7 +180,7 @@ Reasoning:
 ## Open questions
 
 1. **CQL default-fields shape.** JQL's minimal default fits a ticket shape naturally (key, summary, status, assignee). CQL results are heterogeneous (pages, blogposts, comments, attachments). Needs a decision during implementation: one minimal set per content-type, or a single "headline + id + url + lastModified" set that works for all. Probably the latter; confirm during spike.
-2. **Markdown translator coverage boundary.** Protea's real content will inevitably include constructs we didn't anticipate. Strategy: ship v1 with the table above, add a `translation_warnings: [...]` field to the upsert response when the translator encountered something it passed through as-is. Agents can loop this back into the caller.
+2. **Markdown translator coverage boundary.** Protea's real content will inevitably include constructs we didn't anticipate. Decision for v1: ship with the rule table as-is and **defer** the `translation_warnings` field to v2 — passing through unknown constructs as HTML is already a reasonable fallback, and agents can diff the round-trip if they care. If this turns out to hurt in practice, add the field in a point release; the upsert response shape would gain an optional top-level `translation_warnings: list[str]` array without breaking existing consumers.
 3. **Rate limiting.** Confluence's rate limits differ from Jira's; the shared retry helper in `AtlassianClientBase` may need per-service backoff config. Confirm during spike; not a blocker.
 
 ---

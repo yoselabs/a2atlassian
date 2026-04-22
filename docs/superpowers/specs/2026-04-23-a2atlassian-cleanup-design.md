@@ -21,9 +21,17 @@ In one release, Protea's daily-report workflow should stop crossing connectors f
 Two working copies exist. Canonicalize on the standalone before any signal work:
 
 - **Canonical:** `/Users/iorlas/Workspaces/a2atlassian` — HEAD `fb3661c` (v0.2.1, yoselabs rebrand), clean.
-- **Stale:** `/Users/iorlas/Workspaces/agentic-eng/a2atlassian` — older HEAD, but holds unique uncommitted work: the `src/a2atlassian/jira_tools/` package split (old flat `jira_read_tools.py` / `jira_write_tools.py` deleted, `mcp_server.py` + `tests/test_mcp_server.py` modified).
+- **Stale:** `/Users/iorlas/Workspaces/agentic-eng/a2atlassian` — older HEAD, but holds unique uncommitted work.
 
-Port the refactor into the canonical repo as the first commit of this batch. Delete the agentic-eng copy so we don't drift again.
+**Porting scope (what the first commit contains):**
+
+- Copy `src/a2atlassian/jira_tools/` into the canonical repo. Directory contents verified at time of this spec: `__init__.py`, `boards.py`, `comments.py`, `fields.py`, `issues.py`, `links.py`, `projects.py`, `sprints.py`, `transitions.py`, `users.py`, `watchers.py`, `worklogs.py` (12 files).
+- Delete old flat `src/a2atlassian/jira_read_tools.py` and `src/a2atlassian/jira_write_tools.py`.
+- Apply the modified `src/a2atlassian/mcp_server.py` and `tests/test_mcp_server.py` that wire the new per-domain registration.
+
+**Audit after porting, before proceeding to design items:** the stale refactor is a mechanical split only. It does **not** already implement any of the section-5 consolidations (`jira_link_to_epic`, watcher merge, project metadata merge, `jira_get_issue_dev_info` deletion, etc.) — confirm this explicitly by running `rg '@server\.tool\(\)' src/a2atlassian/jira_tools/` and checking the tool list matches the pre-consolidation surface (should be 18 read + 16 write = 34 `@server.tool()` calls across the package). If the stale copy turns out to have already landed any of section 5, mark those items as done and skip them.
+
+Delete the agentic-eng working copy after porting so we don't drift again.
 
 ---
 
@@ -55,7 +63,7 @@ S7: broad JQL returns full fields-per-ticket and blows the token ceiling.
   - `["*all"]` → omit `fields=` (full payload escape hatch).
   - Explicit list → pass through.
 - The `jira_search` MCP tool mirrors the parameter, with a docstring note about `fields=["*all"]` being large.
-- New tool `jira_search_count(connection, jql)` — thin wrapper calling `_jira.jql(jql, limit=0)`, returns `{jql, total}`. Pre-check before broad searches.
+- New tool `jira_search_count(connection, jql)` — thin wrapper calling `_jira.jql(jql, limit=0)`, returns `{jql, total}` as JSON (single-entity response per the codebase-wide format rule).
 
 Breaking change: anyone bypassing `_extract_issue_summary` and consuming `_jira.jql()` raw payload sees a trimmed shape. Documented in changelog; no major bump (pre-1.0).
 
@@ -76,20 +84,26 @@ jira_get_worklogs(
 ) -> str
 ```
 
-**Mode selection:**
+**Mode selection** — fully enumerated:
 
-- `issue_key` set → raw mode. Returns per-worklog entries for that ticket. Replaces today's singular behavior.
-- `date_from` set, no `issue_key` → summary mode.
-- `detail="auto"` → `raw` when `issue_key` given, `by_day` otherwise.
-- Neither given → error with enricher hint.
+| `issue_key` | `date_from` | Mode | Behavior |
+|---|---|---|---|
+| set | unset | raw | per-worklog dump for the ticket, unfiltered |
+| set | set | raw | per-worklog dump for the ticket, filtered to `[date_from, date_to]` in the connection's TZ |
+| unset | set | summary | aggregated per attribution rules across scope |
+| unset | unset | error | enricher returns: "Provide either issue_key (raw mode) or date_from (summary mode)." |
 
-**Attribution rules (summary mode)** — addresses S8's worklog-author misattribution:
+`detail="auto"` resolves to `raw` when `issue_key` is set, `by_day` otherwise. Explicit `detail` values override.
 
-| Case | Attributed to | `source` string |
-|---|---|---|
-| `logger == assignee` | assignee | `"self"` |
-| `logger ∈ worklog_admins` | assignee | `"proxy:<logger_name>"` |
-| `logger ∉ admins, logger != assignee` | logger | `"non-admin-other"` |
+**Attribution rules (summary mode)** — addresses S8's worklog-author misattribution. Rules evaluated in order; first match wins:
+
+| Order | Case | Attributed to | `source` string |
+|---|---|---|---|
+| 1 | `logger == assignee` | assignee | `"self"` |
+| 2 | `logger ∈ worklog_admins` | assignee | `"proxy:<logger_name>"` |
+| 3 | `logger ∉ admins, logger != assignee` | logger | `"non-admin-other"` |
+
+The order matters: if the assignee is themselves in `worklog_admins` and logs their own time, rule 1 fires (`"self"`), not rule 2.
 
 **New connection fields** (optional, in the TOML):
 
@@ -155,11 +169,11 @@ Removes ~5 lines × ~34 tools = ~170 lines of boilerplate. Catches a whole class
 
 S12, S9 — documentation hygiene:
 
-- `mcp_server.py` `instructions=` string: add `"Scope today: Jira only. For Confluence, use mcp__atlassian (sooperset)."` — shortens ToolSearch discovery loops observed in session traces.
+- `mcp_server.py` `instructions=` string currently claims "work with Jira and Confluence" — but only Jira ships today. **Replace** the opening phrase so the scope is honest: drop the Confluence mention and add `"Scope today: Jira only. For Confluence, use mcp__atlassian (sooperset)."` Shortens ToolSearch discovery loops observed in session traces. Also update the parameter-name sentence to reflect the rename from section 1 (`"Connections are identified by a connection name"` rather than `"by project name"`).
 - Same note at the top of README.md.
 - Every list-returning tool docstring: append `"Returns TOON by default (compact); pass format='json' for standard JSON shape."`
 
-Remove the "Scope today: Jira only" line as part of the v0.4.0 Confluence release.
+Restore the Confluence mention and remove the "Jira only" caveat as part of the v0.4.0 Confluence release.
 
 ### 8. Error enrichment (residual from S1)
 
