@@ -30,6 +30,15 @@ def mock_jira_client() -> JiraClient:
     return client
 
 
+class TestJiraClientValidate:
+    async def test_validate_calls_myself(self, mock_jira_client: JiraClient) -> None:
+        """Covers jira_client.py line 39: validate() method."""
+        mock_jira_client._jira_instance.myself.return_value = {"displayName": "Test User", "accountId": "abc123"}
+        result = await mock_jira_client.validate()
+        mock_jira_client._jira_instance.myself.assert_called_once()
+        assert result["displayName"] == "Test User"
+
+
 class TestFullWorkflow:
     """Test the secondary critical path: fetch → comment → update comment → transition."""
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.4.0 — 2026-04-23
+
+### Added
+- Confluence domain: `confluence_get_page`, `confluence_get_page_children`, `confluence_search`, `confluence_upsert_pages`.
+- Markdown → Confluence storage translator; recursive `<details>` → expand-macro translation.
+- Per-page upsert with identity resolution (page_id → parent-scoped title match → space-root title match).
+- Batch upsert returns `{succeeded, failed, summary}`; does not raise on partial failure.
+- Page-level knobs on upsert: `labels`, `emoji`, `page_width`.
+- `--enable confluence` flag; MCP server instructions updated to reflect Confluence scope.
+
+### Changed
+- `AtlassianClient` split into `AtlassianClientBase` + `JiraClient` (+ new `ConfluenceClient`). Existing Jira code continues to work; imports change from `a2atlassian.client.AtlassianClient` → `a2atlassian.jira_client.JiraClient`.
+
 ## v0.3.1 — 2026-04-23
 
 ### Fixed

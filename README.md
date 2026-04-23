@@ -48,7 +48,7 @@ Existing Atlassian MCP servers (Rovo, sooperset) require Docker, `.env` files, a
 - **Error enrichment** — bad field names get suggestions, JQL typos get corrections, quirks get auto-fixed
 - **Secrets stay in env** — `${ATLASSIAN_TOKEN}` in configs, expanded only at runtime
 
-> **Scope today:** a2atlassian ships Jira tools only. Confluence support is on the v0.4.0 roadmap; use [mcp-atlassian](https://github.com/sooperset/mcp-atlassian) for Confluence until then.
+> **Scope today:** a2atlassian ships Jira and Confluence tools. Confluence support shipped in v0.4.0.
 
 ## Quick Start
 
@@ -159,6 +159,15 @@ a2atlassian logout -p myproject
 | `jira_add_comment` | Add comment (wiki markup, API v2) |
 | `jira_edit_comment` | Update existing comment |
 | `jira_transition_issue` | Move issue to new status |
+
+## Confluence tools
+
+| Tool                         | Purpose                                                     |
+|------------------------------|-------------------------------------------------------------|
+| confluence_get_page          | Fetch a page by id (body storage, version, space)           |
+| confluence_get_page_children | List direct children of a page (paginated)                  |
+| confluence_search            | CQL search; minimal per-match rows                          |
+| confluence_upsert_pages      | Batch create-or-update with per-page status + partial-failure shape |
 
 ### Output Formats
 

@@ -233,6 +233,51 @@ class TestUpsertBatch:
         assert "permission" in categories  # 403 via AuthenticationError
         assert "format" in categories  # 400 raw HTTPError
 
+    async def test_updated_counter_increments(self, mock_client: ConfluenceClient) -> None:
+        # covers line 269: updated += 1 branch
+        mock_client._confluence_instance.get_page_by_title.side_effect = [
+            {"id": "1", "title": "A"},
+            {"id": "2", "title": "B"},
+        ]
+        mock_client._confluence_instance.update_page.side_effect = [
+            {"id": "1", "version": {"number": 2}, "_links": {"webui": "/p/1"}},
+            {"id": "2", "version": {"number": 3}, "_links": {"webui": "/p/2"}},
+        ]
+        result = await upsert_pages(
+            mock_client,
+            pages=[
+                {"space": "SP", "title": "A", "content": "hi"},
+                {"space": "SP", "title": "B", "content": "hi"},
+            ],
+        )
+        assert result.data["summary"] == {"total": 2, "created": 0, "updated": 2, "failed": 0}
+
+    async def test_conflict_and_other_error_categories(self, mock_client: ConfluenceClient) -> None:
+        # covers lines 233-237: conflict (409) and other error categories
+        from requests.exceptions import HTTPError
+        from requests.models import Response
+
+        def _err(status: int) -> HTTPError:
+            r = Response()
+            r.status_code = status
+            return HTTPError(response=r)
+
+        mock_client._confluence_instance.get_page_by_title.return_value = None
+        mock_client._confluence_instance.create_page.side_effect = [
+            _err(409),
+            RuntimeError("unexpected"),
+        ]
+        result = await upsert_pages(
+            mock_client,
+            pages=[
+                {"space": "SP", "title": "X", "content": "hi"},
+                {"space": "SP", "title": "Y", "content": "hi"},
+            ],
+        )
+        categories = {f["error_category"] for f in result.data["failed"]}
+        assert "conflict" in categories
+        assert "other" in categories
+
     async def test_empty_batch(self, mock_client: ConfluenceClient) -> None:
         result = await upsert_pages(mock_client, pages=[])
         assert result.data["summary"] == {"total": 0, "created": 0, "updated": 0, "failed": 0}

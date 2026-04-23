@@ -88,3 +88,37 @@ class TestDetailsExpand:
         assert out.count('<ac:structured-macro ac:name="expand">') == 2
         assert '<ac:parameter ac:name="title">Outer</ac:parameter>' in out
         assert '<ac:parameter ac:name="title">Inner</ac:parameter>' in out
+
+    def test_details_without_summary_uses_empty_title(self) -> None:
+        # <details> with no <summary> — title="" and body=entire inner content (line 58-59)
+        src = "<details>some content</details>"
+        out = markdown_to_storage(src)
+        assert '<ac:structured-macro ac:name="expand">' in out
+        assert '<ac:parameter ac:name="title"></ac:parameter>' in out
+
+    def test_unclosed_details_passes_through(self) -> None:
+        # <details> with no closing tag — falls through unchanged (line 53 break)
+        src = "<details><summary>Oops</summary>no close"
+        out = markdown_to_storage(src)
+        # No expand macro generated — raw content preserved
+        assert "<ac:structured-macro" not in out
+
+
+class TestEdgeCases:
+    def test_empty_string_returns_empty(self) -> None:
+        # line 92: early return for empty input
+        assert markdown_to_storage("") == ""
+
+    def test_empty_block_returns_empty(self) -> None:
+        # line 131: _translate_block with whitespace-only block
+        # Feed text that splits into blank blocks via double newlines
+        out = markdown_to_storage("hello\n\n\n\nworld")
+        assert out == "<p>hello</p><p>world</p>"
+
+    def test_table_not_detected_with_invalid_separator(self) -> None:
+        # line 168: _looks_like_table returns False when separator cells contain non-dash/colon chars
+        # "| A | B |\n| abc | def |" — second row is not a valid separator
+        src = "| A | B |\n| abc | def |\n| 1 | 2 |"
+        out = markdown_to_storage(src)
+        # Should be treated as a plain paragraph, not a table
+        assert "<table>" not in out

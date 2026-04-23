@@ -44,3 +44,10 @@ class TestConfluenceClient:
         result = await client.validate()
         client._confluence_instance.get.assert_called_once_with("rest/api/user/current")
         assert result["displayName"] == "X"
+
+    def test_lazy_confluence_returns_confluence_class(self) -> None:
+        # Covers lines 12,14 in confluence_client.py: actual import and return inside _lazy_confluence
+        from a2atlassian.confluence_client import _lazy_confluence
+
+        cls = _lazy_confluence()
+        assert cls.__name__ == "Confluence"
