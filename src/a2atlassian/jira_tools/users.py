@@ -22,11 +22,11 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_get_user_profile(project: str, account_id: str, format: str = "json") -> str:  # noqa: A002
+    async def jira_get_user_profile(connection: str, account_id: str, format: str = "json") -> str:  # noqa: A002
         """Get a Jira user profile by account ID."""
-        client = get_client(project)
+        client = get_client(connection)
         try:
             result = await get_user_profile(client, account_id)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)

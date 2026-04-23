@@ -22,21 +22,21 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_search_fields(project: str, format: str = "toon") -> str:  # noqa: A002
+    async def jira_search_fields(connection: str, format: str = "toon") -> str:  # noqa: A002
         """Search all Jira fields. Returns field id, name, custom flag, and schema type."""
-        client = get_client(project)
+        client = get_client(connection)
         try:
             result = await search_fields(client)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
     @server.tool()
-    async def jira_get_field_options(project: str, field_id: str, format: str = "toon") -> str:  # noqa: A002
+    async def jira_get_field_options(connection: str, field_id: str, format: str = "toon") -> str:  # noqa: A002
         """Get allowed values for a Jira field."""
-        client = get_client(project)
+        client = get_client(connection)
         try:
             result = await get_field_options(client, field_id)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)

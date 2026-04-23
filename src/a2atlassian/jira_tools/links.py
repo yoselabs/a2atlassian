@@ -23,13 +23,13 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_get_link_types(project: str, format: str = "toon") -> str:  # noqa: A002
+    async def jira_get_link_types(connection: str, format: str = "toon") -> str:  # noqa: A002
         """Get all available issue link types (e.g. Blocks, Duplicate, Relates)."""
-        client = get_client(project)
+        client = get_client(connection)
         try:
             result = await get_link_types(client)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
 
@@ -40,45 +40,45 @@ def register_write(
 ) -> None:
     @server.tool()
     async def jira_create_issue_link(
-        project: str,
+        connection: str,
         link_type: str,
         inward_key: str,
         outward_key: str,
         format: str = "json",  # noqa: A002
     ) -> str:
         """Create a link between two Jira issues. Use jira_get_link_types to discover available types."""
-        conn = get_connection(project)
+        conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{project}' is read-only.", {"project": project})
+            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
         client = AtlassianClient(conn)
         try:
             result = await create_issue_link(client, link_type, inward_key, outward_key)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
     @server.tool()
-    async def jira_remove_issue_link(project: str, link_id: str, format: str = "json") -> str:  # noqa: A002
+    async def jira_remove_issue_link(connection: str, link_id: str, format: str = "json") -> str:  # noqa: A002
         """Remove an issue link by its ID."""
-        conn = get_connection(project)
+        conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{project}' is read-only.", {"project": project})
+            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
         client = AtlassianClient(conn)
         try:
             result = await remove_issue_link(client, link_id)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
     @server.tool()
-    async def jira_link_to_epic(project: str, issue_key: str, epic_key: str, format: str = "json") -> str:  # noqa: A002
+    async def jira_link_to_epic(connection: str, issue_key: str, epic_key: str, format: str = "json") -> str:  # noqa: A002
         """Set the parent (epic) of an issue. Uses the parent field."""
-        conn = get_connection(project)
+        conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{project}' is read-only.", {"project": project})
+            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
         client = AtlassianClient(conn)
         try:
             result = await link_to_epic(client, issue_key, epic_key)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)

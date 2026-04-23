@@ -23,13 +23,13 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_get_transitions(project: str, issue_key: str, format: str = "toon") -> str:  # noqa: A002
+    async def jira_get_transitions(connection: str, issue_key: str, format: str = "toon") -> str:  # noqa: A002
         """Get available transitions for a Jira issue."""
-        client = get_client(project)
+        client = get_client(connection)
         try:
             result = await get_transitions(client, issue_key)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
 
@@ -39,14 +39,14 @@ def register_write(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_transition_issue(project: str, issue_key: str, transition_id: str, format: str = "json") -> str:  # noqa: A002
+    async def jira_transition_issue(connection: str, issue_key: str, transition_id: str, format: str = "json") -> str:  # noqa: A002
         """Transition a Jira issue to a new status. Use jira_get_transitions to discover available transitions."""
-        conn = get_connection(project)
+        conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{project}' is read-only.", {"project": project})
+            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
         client = AtlassianClient(conn)
         try:
             result = await transition_issue(client, issue_key, transition_id)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)

@@ -23,23 +23,23 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_get_sprints(project: str, board_id: int, format: str = "toon") -> str:  # noqa: A002
+    async def jira_get_sprints(connection: str, board_id: int, format: str = "toon") -> str:  # noqa: A002
         """Get all sprints for a Jira board."""
-        client = get_client(project)
+        client = get_client(connection)
         try:
             result = await get_sprints(client, board_id)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
     @server.tool()
-    async def jira_get_sprint_issues(project: str, sprint_id: int, limit: int = 50, offset: int = 0, format: str = "toon") -> str:  # noqa: A002
+    async def jira_get_sprint_issues(connection: str, sprint_id: int, limit: int = 50, offset: int = 0, format: str = "toon") -> str:  # noqa: A002
         """Get issues in a specific sprint."""
-        client = get_client(project)
+        client = get_client(connection)
         try:
             result = await get_sprint_issues(client, sprint_id, limit=limit, offset=offset)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
 
@@ -50,7 +50,7 @@ def register_write(
 ) -> None:
     @server.tool()
     async def jira_create_sprint(
-        project: str,
+        connection: str,
         name: str,
         board_id: int,
         start_date: str | None = None,
@@ -58,19 +58,19 @@ def register_write(
         format: str = "json",  # noqa: A002
     ) -> str:
         """Create a new sprint on a Jira board."""
-        conn = get_connection(project)
+        conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{project}' is read-only.", {"project": project})
+            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
         client = AtlassianClient(conn)
         try:
             result = await create_sprint(client, name, board_id, start_date=start_date, end_date=end_date)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
     @server.tool()
     async def jira_update_sprint(
-        project: str,
+        connection: str,
         sprint_id: int,
         name: str | None = None,
         state: str | None = None,
@@ -79,9 +79,9 @@ def register_write(
         format: str = "json",  # noqa: A002
     ) -> str:
         """Update an existing sprint (name, state, dates)."""
-        conn = get_connection(project)
+        conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{project}' is read-only.", {"project": project})
+            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
         client = AtlassianClient(conn)
         try:
             kwargs = {
@@ -89,18 +89,18 @@ def register_write(
             }
             result = await update_sprint(client, sprint_id, **kwargs)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
 
     @server.tool()
-    async def jira_add_issues_to_sprint(project: str, sprint_id: int, issue_keys: list[str], format: str = "json") -> str:  # noqa: A002
+    async def jira_add_issues_to_sprint(connection: str, sprint_id: int, issue_keys: list[str], format: str = "json") -> str:  # noqa: A002
         """Move issues into a sprint."""
-        conn = get_connection(project)
+        conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{project}' is read-only.", {"project": project})
+            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
         client = AtlassianClient(conn)
         try:
             result = await add_issues_to_sprint(client, sprint_id, issue_keys)
         except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"project": project})
+            return enricher.enrich(str(exc), {"connection": connection})
         return format_result(result, fmt=format)
