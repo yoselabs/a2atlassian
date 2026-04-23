@@ -50,3 +50,17 @@ class TestMentions:
 class TestParagraphs:
     def test_plain_paragraph(self) -> None:
         assert markdown_to_storage("hello world") == "<p>hello world</p>"
+
+
+class TestTables:
+    def test_basic_table(self) -> None:
+        src = "| A | B |\n| --- | --- |\n| 1 | 2 |\n| 3 | 4 |"
+        out = markdown_to_storage(src)
+        assert out == (
+            "<table><tbody><tr><th>A</th><th>B</th></tr><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></tbody></table>"
+        )
+
+    def test_table_with_inline_mention(self) -> None:
+        src = "| Who |\n| --- |\n| @user:abc |"
+        out = markdown_to_storage(src)
+        assert '<ri:user ri:account-id="abc"/>' in out

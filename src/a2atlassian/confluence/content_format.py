@@ -80,12 +80,42 @@ def _translate_block(block: str) -> str:
             "</ac:structured-macro>"
         )
 
+    if _looks_like_table(stripped):
+        return _translate_table(stripped)
+
     m = _HEADING_RE.match(stripped)
     if m:
         level = len(m.group(1))
         return f"<h{level}>{_inline(m.group(2))}</h{level}>"
 
     return f"<p>{_inline(stripped)}</p>"
+
+
+def _looks_like_table(block: str) -> bool:
+    lines = block.splitlines()
+    if len(lines) < 2:
+        return False
+    if "|" not in lines[0]:
+        return False
+    sep = lines[1].strip()
+    cells = [c.strip() for c in sep.strip("|").split("|") if c.strip()]
+    return bool(cells) and all(set(c) <= set("-:") for c in cells)
+
+
+def _split_row(row: str) -> list[str]:
+    row = row.strip()
+    row = row.removeprefix("|")
+    row = row.removesuffix("|")
+    return [cell.strip() for cell in row.split("|")]
+
+
+def _translate_table(block: str) -> str:
+    lines = block.splitlines()
+    header_cells = _split_row(lines[0])
+    data_rows = [_split_row(line) for line in lines[2:] if line.strip()]
+    head = "".join(f"<th>{_inline(c)}</th>" for c in header_cells)
+    rows = ["<tr>" + "".join(f"<td>{_inline(c)}</td>" for c in r) + "</tr>" for r in data_rows]
+    return f"<table><tbody><tr>{head}</tr>{''.join(rows)}</tbody></table>"
 
 
 def _inline(text: str) -> str:
