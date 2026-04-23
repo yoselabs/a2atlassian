@@ -122,7 +122,7 @@ def _make_http_error(status: int) -> HTTPError:
 @pytest.fixture
 def base_client() -> AtlassianClientBase:
     conn = ConnectionInfo(
-        project="t",
+        connection="t",
         url="https://t.atlassian.net",
         email="t@t.com",
         token="tok",
