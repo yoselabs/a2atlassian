@@ -42,7 +42,7 @@ async def get_boards(
 ) -> OperationResult:
     """List Jira boards."""
     t0 = time.monotonic()
-    data = await client._call(client._jira.boards, startAt=offset, maxResults=limit)
+    data = await client._call(client._jira.get_all_agile_boards, startAt=offset, maxResults=limit)
     elapsed = int((time.monotonic() - t0) * 1000)
 
     # Response may be dict with "values" key or list

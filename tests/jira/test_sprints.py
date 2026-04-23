@@ -155,7 +155,7 @@ class TestCreateSprint:
 
 class TestUpdateSprint:
     async def test_updates_sprint(self, mock_client: AtlassianClient) -> None:
-        mock_client._jira_instance.update_sprint.return_value = {
+        mock_client._jira_instance.update_partially_sprint.return_value = {
             "id": 42,
             "name": "Renamed Sprint",
             "state": "active",
@@ -171,10 +171,10 @@ class TestUpdateSprint:
         assert isinstance(result, OperationResult)
         assert result.data["name"] == "Renamed Sprint"
         assert result.data["state"] == "active"
-        mock_client._jira_instance.update_sprint.assert_called_once_with(42, name="Renamed Sprint", state="active")
+        mock_client._jira_instance.update_partially_sprint.assert_called_once_with(42, name="Renamed Sprint", state="active")
 
     async def test_updates_sprint_non_dict_response(self, mock_client: AtlassianClient) -> None:
-        mock_client._jira_instance.update_sprint.return_value = None
+        mock_client._jira_instance.update_partially_sprint.return_value = None
         result = await update_sprint(mock_client, sprint_id=42, name="X")
         assert result.data["sprint_id"] == 42
         assert result.data["status"] == "updated"

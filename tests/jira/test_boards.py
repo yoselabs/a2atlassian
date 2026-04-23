@@ -29,7 +29,7 @@ def mock_client() -> AtlassianClient:
 class TestGetBoards:
     async def test_returns_boards_from_values(self, mock_client: AtlassianClient) -> None:
         """boards() returns {"values": [...]} dict."""
-        mock_client._jira_instance.boards.return_value = {
+        mock_client._jira_instance.get_all_agile_boards.return_value = {
             "values": [
                 {"id": 1, "name": "My Board", "type": "scrum", "location": {"projectKey": "PROJ"}},
                 {"id": 2, "name": "Kanban", "type": "kanban", "location": {"projectKey": "KAN"}},
@@ -47,7 +47,7 @@ class TestGetBoards:
 
     async def test_returns_boards_from_list(self, mock_client: AtlassianClient) -> None:
         """boards() may return a plain list."""
-        mock_client._jira_instance.boards.return_value = [
+        mock_client._jira_instance.get_all_agile_boards.return_value = [
             {"id": 10, "name": "Board X", "type": "scrum", "location": {"projectKey": "X"}},
         ]
         result = await get_boards(mock_client)
@@ -57,7 +57,7 @@ class TestGetBoards:
 
     async def test_handles_dict_type(self, mock_client: AtlassianClient) -> None:
         """type can be a dict with a name key."""
-        mock_client._jira_instance.boards.return_value = {
+        mock_client._jira_instance.get_all_agile_boards.return_value = {
             "values": [
                 {"id": 3, "name": "B", "type": {"name": "kanban"}, "location": {"projectKey": "K"}},
             ],
@@ -67,7 +67,7 @@ class TestGetBoards:
 
     async def test_handles_missing_location(self, mock_client: AtlassianClient) -> None:
         """location may be absent."""
-        mock_client._jira_instance.boards.return_value = {
+        mock_client._jira_instance.get_all_agile_boards.return_value = {
             "values": [
                 {"id": 4, "name": "No Loc", "type": "scrum"},
             ],
@@ -77,7 +77,7 @@ class TestGetBoards:
 
     async def test_handles_string_location(self, mock_client: AtlassianClient) -> None:
         """atlassian-python-api may transform location to a string."""
-        mock_client._jira_instance.boards.return_value = {
+        mock_client._jira_instance.get_all_agile_boards.return_value = {
             "values": [
                 {"id": 5, "name": "Str Loc", "type": "scrum", "location": "PROJ"},
             ],
@@ -86,7 +86,7 @@ class TestGetBoards:
         assert result.data[0]["project_key"] == "PROJ"
 
     async def test_empty_boards(self, mock_client: AtlassianClient) -> None:
-        mock_client._jira_instance.boards.return_value = {"values": []}
+        mock_client._jira_instance.get_all_agile_boards.return_value = {"values": []}
         result = await get_boards(mock_client)
         assert result.count == 0
         assert result.data == []

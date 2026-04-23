@@ -124,7 +124,7 @@ async def update_sprint(
 ) -> OperationResult:
     """Update an existing sprint."""
     t0 = time.monotonic()
-    data = await client._call(client._jira.update_sprint, sprint_id, **kwargs)
+    data = await client._call(client._jira.update_partially_sprint, sprint_id, **kwargs)
     elapsed = int((time.monotonic() - t0) * 1000)
 
     result_data: dict[str, Any]
