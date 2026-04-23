@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from a2atlassian.client import AtlassianClient
-from a2atlassian.formatter import format_result
+from a2atlassian.decorators import mcp_tool
+from a2atlassian.formatter import OperationResult  # noqa: TC001 — FastMCP needs runtime annotation
 from a2atlassian.jira.comments import add_comment, edit_comment, get_comments
 
 if TYPE_CHECKING:
@@ -23,14 +24,17 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_get_comments(connection: str, issue_key: str, format: str = "toon") -> str:  # noqa: A002
-        """Get all comments for a Jira issue."""
-        client = get_client(connection)
-        try:
-            result = await get_comments(client, issue_key)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+    @mcp_tool(enricher)
+    async def jira_get_comments(
+        connection: str,
+        issue_key: str,
+        format: Literal["toon", "json"] = "toon",  # noqa: A002
+    ) -> OperationResult:
+        """Get all comments for a Jira issue.
+
+        Returns TOON by default (compact); pass format='json' for standard JSON shape.
+        """
+        return await get_comments(get_client(connection), issue_key)
 
 
 def register_write(
@@ -39,27 +43,30 @@ def register_write(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_add_comment(connection: str, issue_key: str, body: str, format: str = "json") -> str:  # noqa: A002
+    @mcp_tool(enricher)
+    async def jira_add_comment(
+        connection: str,
+        issue_key: str,
+        body: str,
+        format: Literal["toon", "json"] = "json",  # noqa: A002
+    ) -> OperationResult:
         """Add a comment to a Jira issue. Uses wiki markup (API v2)."""
         conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
-        client = AtlassianClient(conn)
-        try:
-            result = await add_comment(client, issue_key, body)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+            raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
+        return await add_comment(AtlassianClient(conn), issue_key, body)
 
     @server.tool()
-    async def jira_edit_comment(connection: str, issue_key: str, comment_id: str, body: str, format: str = "json") -> str:  # noqa: A002
+    @mcp_tool(enricher)
+    async def jira_edit_comment(
+        connection: str,
+        issue_key: str,
+        comment_id: str,
+        body: str,
+        format: Literal["toon", "json"] = "json",  # noqa: A002
+    ) -> OperationResult:
         """Edit an existing comment on a Jira issue. Uses wiki markup (API v2)."""
         conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
-        client = AtlassianClient(conn)
-        try:
-            result = await edit_comment(client, issue_key, comment_id, body)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+            raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
+        return await edit_comment(AtlassianClient(conn), issue_key, comment_id, body)
