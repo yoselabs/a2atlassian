@@ -64,3 +64,27 @@ class TestTables:
         src = "| Who |\n| --- |\n| @user:abc |"
         out = markdown_to_storage(src)
         assert '<ri:user ri:account-id="abc"/>' in out
+
+
+class TestDetailsExpand:
+    def test_simple_details(self) -> None:
+        src = "<details><summary>More</summary>\n\nhello\n\n</details>"
+        out = markdown_to_storage(src)
+        assert out.startswith('<ac:structured-macro ac:name="expand">')
+        assert '<ac:parameter ac:name="title">More</ac:parameter>' in out
+        assert "<ac:rich-text-body><p>hello</p></ac:rich-text-body>" in out
+        assert out.endswith("</ac:structured-macro>")
+
+    def test_details_contains_translated_table(self) -> None:
+        src = "<details><summary>Stats</summary>\n\n| A | B |\n| --- | --- |\n| 1 | 2 |\n\n</details>"
+        out = markdown_to_storage(src)
+        assert "<table><tbody>" in out
+        assert "<th>A</th><th>B</th>" in out
+        assert "<td>1</td><td>2</td>" in out
+
+    def test_nested_details(self) -> None:
+        src = "<details><summary>Outer</summary>\n\n<details><summary>Inner</summary>\n\nbody\n\n</details>\n\n</details>"
+        out = markdown_to_storage(src)
+        assert out.count('<ac:structured-macro ac:name="expand">') == 2
+        assert '<ac:parameter ac:name="title">Outer</ac:parameter>' in out
+        assert '<ac:parameter ac:name="title">Inner</ac:parameter>' in out
