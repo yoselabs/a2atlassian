@@ -16,23 +16,23 @@ if TYPE_CHECKING:
 class TestConnectionInfo:
     def test_frozen_dataclass(self, sample_connection: ConnectionInfo) -> None:
         with pytest.raises(AttributeError):
-            sample_connection.project = "other"  # type: ignore[misc]
+            sample_connection.connection = "other"  # type: ignore[misc]
 
     def test_resolved_token_literal(self) -> None:
-        info = ConnectionInfo(project="p", url="https://x.atlassian.net", email="a@b.com", token="literal-token")
+        info = ConnectionInfo(connection="p", url="https://x.atlassian.net", email="a@b.com", token="literal-token")
         assert info.resolved_token == "literal-token"
 
     def test_resolved_token_env_var(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("MY_TOKEN", "secret-from-env")
-        info = ConnectionInfo(project="p", url="https://x.atlassian.net", email="a@b.com", token="${MY_TOKEN}")
+        info = ConnectionInfo(connection="p", url="https://x.atlassian.net", email="a@b.com", token="${MY_TOKEN}")
         assert info.resolved_token == "secret-from-env"
 
     def test_resolved_token_missing_env_var(self) -> None:
-        info = ConnectionInfo(project="p", url="https://x.atlassian.net", email="a@b.com", token="${NONEXISTENT_VAR}")
+        info = ConnectionInfo(connection="p", url="https://x.atlassian.net", email="a@b.com", token="${NONEXISTENT_VAR}")
         assert info.resolved_token == "${NONEXISTENT_VAR}"
 
     def test_read_only_default(self) -> None:
-        info = ConnectionInfo(project="p", url="https://x.atlassian.net", email="a@b.com", token="t")
+        info = ConnectionInfo(connection="p", url="https://x.atlassian.net", email="a@b.com", token="t")
         assert info.read_only is True
 
 
@@ -40,14 +40,14 @@ class TestConnectionStore:
     def test_save_and_load(self, tmp_config_dir: Path, sample_connection: ConnectionInfo) -> None:
         store = ConnectionStore(tmp_config_dir)
         store.save(
-            sample_connection.project,
+            sample_connection.connection,
             sample_connection.url,
             sample_connection.email,
             sample_connection.token,
             read_only=sample_connection.read_only,
         )
-        loaded = store.load(sample_connection.project)
-        assert loaded.project == sample_connection.project
+        loaded = store.load(sample_connection.connection)
+        assert loaded.connection == sample_connection.connection
         assert loaded.url == sample_connection.url
         assert loaded.email == sample_connection.email
         assert loaded.token == sample_connection.token
@@ -98,16 +98,16 @@ class TestConnectionStore:
         store.save("beta", "https://b.atlassian.net", "b@b.com", "t2")
         results = store.list_connections()
         assert len(results) == 2
-        assert results[0].project == "alpha"
-        assert results[1].project == "beta"
+        assert results[0].connection == "alpha"
+        assert results[1].connection == "beta"
 
     def test_list_connections_filter(self, tmp_config_dir: Path) -> None:
         store = ConnectionStore(tmp_config_dir)
         store.save("alpha", "https://a.atlassian.net", "a@b.com", "t1")
         store.save("beta", "https://b.atlassian.net", "b@b.com", "t2")
-        results = store.list_connections(project="alpha")
+        results = store.list_connections(connection="alpha")
         assert len(results) == 1
-        assert results[0].project == "alpha"
+        assert results[0].connection == "alpha"
 
     def test_list_connections_no_dir(self, tmp_path: Path) -> None:
         store = ConnectionStore(tmp_path / "nonexistent")

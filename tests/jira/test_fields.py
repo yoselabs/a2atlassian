@@ -15,7 +15,7 @@ from a2atlassian.jira.fields import get_field_options, search_fields
 @pytest.fixture
 def mock_client() -> AtlassianClient:
     conn = ConnectionInfo(
-        project="test",
+        connection="test",
         url="https://test.atlassian.net",
         email="t@t.com",
         token="tok",

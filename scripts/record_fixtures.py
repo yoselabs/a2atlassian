@@ -236,7 +236,7 @@ async def record_all() -> None:
         print("ERROR: A2ATLASSIAN_TEST_URL, _EMAIL, _TOKEN are required")
         sys.exit(1)
 
-    conn = ConnectionInfo(project="recorder", url=url, email=email, token=token, read_only=True)
+    conn = ConnectionInfo(connection="recorder", url=url, email=email, token=token, read_only=True)
     client = AtlassianClient(conn)
 
     output_dir = Path(__file__).parent.parent / "tests" / "fixtures"

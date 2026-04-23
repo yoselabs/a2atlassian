@@ -14,7 +14,7 @@ from a2atlassian.errors import AuthenticationError, RateLimitError
 @pytest.fixture
 def connection() -> ConnectionInfo:
     return ConnectionInfo(
-        project="test",
+        connection="test",
         url="https://test.atlassian.net",
         email="test@example.com",
         token="test-token",
@@ -31,7 +31,7 @@ def client(connection: ConnectionInfo) -> AtlassianClient:
 
 class TestAtlassianClient:
     def test_init(self, client: AtlassianClient) -> None:
-        assert client.connection.project == "test"
+        assert client.connection.connection == "test"
 
     @patch("a2atlassian.client._lazy_jira")
     async def test_jira_property_creates_instance(self, mock_lazy: MagicMock, connection: ConnectionInfo) -> None:

@@ -36,7 +36,7 @@ def tmp_config_dir(tmp_path: Path) -> Path:
 def sample_connection() -> ConnectionInfo:
     """A sample connection for testing."""
     return ConnectionInfo(
-        project="testproj",
+        connection="testproj",
         url="https://testproj.atlassian.net",
         email="test@example.com",
         token="test-token-123",

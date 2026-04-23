@@ -34,7 +34,7 @@ def cli(ctx: click.Context) -> None:
 @click.option("--read-only/--no-read-only", default=True, help="Read-only mode (default: true)")
 def login(project: str, url: str, email: str, token: str, read_only: bool) -> None:
     """Save an Atlassian connection. Validates by calling /myself."""
-    info = ConnectionInfo(project=project, url=url, email=email, token=token, read_only=read_only)
+    info = ConnectionInfo(connection=project, url=url, email=email, token=token, read_only=read_only)
     client = AtlassianClient(info)
 
     try:
@@ -44,7 +44,7 @@ def login(project: str, url: str, email: str, token: str, read_only: bool) -> No
         sys.exit(1)
 
     store = _store()
-    path = store.save(project, url, email, token, read_only=read_only)
+    path = store.save(connection=project, url=url, email=email, token=token, read_only=read_only)
     display_name = user.get("displayName", "unknown")
     click.echo(f"Connection saved: {path} (authenticated as {display_name})")
 
@@ -67,10 +67,10 @@ def logout(project: str) -> None:
 def connections(project: str | None) -> None:
     """List saved connections (no secrets shown)."""
     store = _store()
-    results = store.list_connections(project=project)
+    results = store.list_connections(connection=project)
     if not results:
         click.echo("No connections found.")
         return
     for info in results:
         mode = "read-only" if info.read_only else "read-write"
-        click.echo(f"{info.project} ({info.url}) [{mode}]")
+        click.echo(f"{info.connection} ({info.url}) [{mode}]")

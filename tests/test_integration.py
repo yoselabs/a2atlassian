@@ -19,7 +19,7 @@ from a2atlassian.mcp_server import _parse_register_args, _parse_scope_args
 @pytest.fixture
 def mock_jira_client() -> AtlassianClient:
     conn = ConnectionInfo(
-        project="integration",
+        connection="integration",
         url="https://integration.atlassian.net",
         email="test@test.com",
         token="test-token",

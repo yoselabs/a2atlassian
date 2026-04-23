@@ -22,7 +22,7 @@ class TestParseRegisterArgs:
         args = ["--register", "myproject", "https://p.atlassian.net", "e@m.com", "tok123"]
         result = _parse_register_args(args)
         assert len(result) == 1
-        assert result[0].project == "myproject"
+        assert result[0].connection == "myproject"
         assert result[0].url == "https://p.atlassian.net"
         assert result[0].email == "e@m.com"
         assert result[0].token == "tok123"
@@ -43,8 +43,8 @@ class TestParseRegisterArgs:
         ]
         result = _parse_register_args(args)
         assert len(result) == 2
-        assert result[0].project == "a"
-        assert result[1].project == "b"
+        assert result[0].connection == "a"
+        assert result[1].connection == "b"
 
     def test_register_with_rw(self) -> None:
         args = ["--register", "myproject", "https://p.atlassian.net", "e@m.com", "tok123", "--rw"]
@@ -224,7 +224,7 @@ class TestToolWrapperExecution:
         srv = FastMCP("test")
         mock_client = MagicMock()
         conn = ConnectionInfo(
-            project="test",
+            connection="test",
             url="https://test.atlassian.net",
             email="t@t.com",
             token="tok",

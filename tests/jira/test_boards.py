@@ -15,7 +15,7 @@ from a2atlassian.jira.boards import get_board_issues, get_boards
 @pytest.fixture
 def mock_client() -> AtlassianClient:
     conn = ConnectionInfo(
-        project="test",
+        connection="test",
         url="https://test.atlassian.net",
         email="t@t.com",
         token="tok",

@@ -15,7 +15,7 @@ from a2atlassian.jira.projects import create_version, get_project_components, ge
 @pytest.fixture
 def mock_client() -> AtlassianClient:
     conn = ConnectionInfo(
-        project="test",
+        connection="test",
         url="https://test.atlassian.net",
         email="t@t.com",
         token="tok",

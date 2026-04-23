@@ -60,11 +60,11 @@ async def login(project: str, url: str, email: str, token: str, read_only: bool 
     For security, prefer passing token as ${ENV_VAR} reference (e.g., "${ATLASSIAN_TOKEN}")
     rather than a literal value. The variable is expanded at runtime, never stored resolved.
     """
-    info = ConnectionInfo(project=project, url=url, email=email, token=token, read_only=read_only)
+    info = ConnectionInfo(connection=project, url=url, email=email, token=token, read_only=read_only)
     client = AtlassianClient(info)
     user = await client.validate()
     store = _store()
-    path = store.save(project, url, email, token, read_only=read_only)
+    path = store.save(connection=project, url=url, email=email, token=token, read_only=read_only)
     display_name = user.get("displayName", "unknown")
     return f"Connection saved: {path} (authenticated as {display_name})"
 
@@ -81,7 +81,7 @@ def logout(project: str) -> str:
 def list_connections(project: str | None = None) -> str:
     """List saved connections (no secrets shown)."""
     store = _store()
-    saved = store.list_connections(project=project)
+    saved = store.list_connections(connection=project)
     all_conns = list(saved)
     for p, info in _ephemeral_connections.items():
         if project is None or p == project:
@@ -91,8 +91,8 @@ def list_connections(project: str | None = None) -> str:
     lines = []
     for info in all_conns:
         mode = "read-only" if info.read_only else "read-write"
-        ephemeral = " [ephemeral]" if info.project in _ephemeral_connections else ""
-        lines.append(f"{info.project} ({info.url}) [{mode}]{ephemeral}")
+        ephemeral = " [ephemeral]" if info.connection in _ephemeral_connections else ""
+        lines.append(f"{info.connection} ({info.url}) [{mode}]{ephemeral}")
     return "\n".join(lines)
 
 
@@ -140,7 +140,7 @@ def _parse_register_args(args: list[str]) -> list[ConnectionInfo]:
                 i += 1
             connections.append(
                 ConnectionInfo(
-                    project=project,
+                    connection=project,
                     url=url,
                     email=email,
                     token=token,
@@ -217,7 +217,7 @@ def main() -> None:
     args = sys.argv[1:]
 
     for conn in _parse_register_args(args):
-        _ephemeral_connections[conn.project] = conn
+        _ephemeral_connections[conn.connection] = conn
 
     _scope_filter = _parse_scope_args(args)
     enable = _parse_enable_args(args)

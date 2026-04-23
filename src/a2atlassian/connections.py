@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class ConnectionInfo:
     """A saved Atlassian connection."""
 
-    project: str
+    connection: str
     url: str
     email: str
     token: str
@@ -35,20 +35,20 @@ class ConnectionStore:
     def __init__(self, config_dir: Path) -> None:
         self.config_dir = config_dir
 
-    def _path(self, project: str) -> Path:
-        return self.config_dir / f"{project}.toml"
+    def _path(self, connection: str) -> Path:
+        return self.config_dir / f"{connection}.toml"
 
-    def save(self, project: str, url: str, email: str, token: str, read_only: bool = True) -> Path:
+    def save(self, connection: str, url: str, email: str, token: str, read_only: bool = True) -> Path:
         """Save a connection. Creates or overwrites the TOML file. Returns the path."""
         self.config_dir.mkdir(parents=True, exist_ok=True)
-        path = self._path(project)
+        path = self._path(connection)
 
         def _escape(value: str) -> str:
             return value.replace("\\", "\\\\").replace('"', '\\"')
 
         ro = "true" if read_only else "false"
         content = (
-            f'project = "{_escape(project)}"\n'
+            f'project = "{_escape(connection)}"\n'
             f'url = "{_escape(url)}"\n'
             f'email = "{_escape(email)}"\n'
             f'token = "{_escape(token)}"\n'
@@ -58,43 +58,43 @@ class ConnectionStore:
         path.chmod(stat.S_IRUSR | stat.S_IWUSR)  # 0600
         return path
 
-    def load(self, project: str) -> ConnectionInfo:
-        """Load a connection by project name. Raises FileNotFoundError if missing."""
-        path = self._path(project)
+    def load(self, connection: str) -> ConnectionInfo:
+        """Load a connection by name. Raises FileNotFoundError if missing."""
+        path = self._path(connection)
         if not path.exists():
-            msg = f"Connection not found: {project}"
+            msg = f"Connection not found: {connection}"
             raise FileNotFoundError(msg)
         data = tomllib.loads(path.read_text())
         return ConnectionInfo(
-            project=data["project"],
+            connection=data["project"],
             url=data["url"],
             email=data["email"],
             token=data["token"],
             read_only=data.get("read_only", True),
         )
 
-    def delete(self, project: str) -> None:
+    def delete(self, connection: str) -> None:
         """Delete a connection. Raises FileNotFoundError if missing."""
-        path = self._path(project)
+        path = self._path(connection)
         if not path.exists():
-            msg = f"Connection not found: {project}"
+            msg = f"Connection not found: {connection}"
             raise FileNotFoundError(msg)
         path.unlink()
 
-    def list_connections(self, project: str | None = None) -> list[ConnectionInfo]:
-        """List all saved connections, optionally filtered by project."""
+    def list_connections(self, connection: str | None = None) -> list[ConnectionInfo]:
+        """List all saved connections, optionally filtered by connection name."""
         if not self.config_dir.exists():
             return []
         results = []
         for path in sorted(self.config_dir.glob("*.toml")):
             data = tomllib.loads(path.read_text())
             info = ConnectionInfo(
-                project=data["project"],
+                connection=data["project"],
                 url=data["url"],
                 email=data["email"],
                 token=data["token"],
                 read_only=data.get("read_only", True),
             )
-            if project is None or info.project == project:
+            if connection is None or info.connection == connection:
                 results.append(info)
         return results

@@ -15,7 +15,7 @@ from a2atlassian.jira.users import get_user_profile
 @pytest.fixture
 def mock_client() -> AtlassianClient:
     conn = ConnectionInfo(
-        project="test",
+        connection="test",
         url="https://test.atlassian.net",
         email="t@t.com",
         token="tok",
