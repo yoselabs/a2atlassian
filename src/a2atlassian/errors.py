@@ -96,3 +96,8 @@ class ErrorEnricher:
                 'Pass the user\'s display name as a plain string (e.g., "Alice Smith").'
             ]
         return []
+
+    def enum_mismatch(self, param: str, value: object, choices: tuple[object, ...]) -> str:
+        """Format an error for an invalid enum value."""
+        expected = ", ".join(str(c) for c in choices)
+        return f"Invalid value for '{param}': {value!r}. Expected one of: {expected}."
