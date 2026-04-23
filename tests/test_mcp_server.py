@@ -152,7 +152,6 @@ class TestToolRegistrationFiltering:
             "jira_get_issue",
             "jira_search",
             "jira_search_count",
-            "jira_get_issue_dev_info",
             "jira_create_issue",
             "jira_update_issue",
             "jira_delete_issue",
@@ -250,7 +249,7 @@ class TestToolWrapperExecution:
     async def test_all_read_tools_execute(self) -> None:
         """Every read tool wrapper body executes without crashing."""
         srv, read_names, _ = self._register_and_split()
-        assert len(read_names) == 19
+        assert len(read_names) == 18
         for name in read_names:
             tool = srv._tool_manager._tools[name]
             kwargs = self._build_kwargs(tool.fn)
@@ -292,3 +291,14 @@ class TestConnectionNotFoundEnrichment:
         msg = str(exc_info.value)
         assert "protea" in msg
         assert "Did you mean" in msg
+
+
+class TestToolDeletions:
+    def test_jira_get_issue_dev_info_is_absent(self) -> None:
+        """Ensure the deleted placeholder tool is gone from source."""
+        import inspect
+
+        from a2atlassian.jira_tools import issues as issues_mod
+
+        source = inspect.getsource(issues_mod)
+        assert "jira_get_issue_dev_info" not in source

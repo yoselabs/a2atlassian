@@ -57,12 +57,6 @@ def register_read(
         """Return the total number of Jira issues matching a JQL query. Cheap pre-check before a broad search."""
         return await search_count(get_client(connection), jql)
 
-    @server.tool()
-    @mcp_tool(enricher)
-    async def jira_get_issue_dev_info(connection: str, issue_key: str) -> str:
-        """Placeholder — kept temporarily for the rename commit; deleted in a later task."""
-        return f"Dev info for {issue_key}: not yet supported. Use the Jira UI."
-
 
 def register_write(
     server: FastMCP,
