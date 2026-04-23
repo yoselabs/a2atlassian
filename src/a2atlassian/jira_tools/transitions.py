@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from a2atlassian.client import AtlassianClient
-from a2atlassian.formatter import format_result
+from a2atlassian.decorators import mcp_tool
+from a2atlassian.formatter import OperationResult  # noqa: TC001 — FastMCP needs runtime annotation
 from a2atlassian.jira.transitions import get_transitions, transition_issue
 
 if TYPE_CHECKING:
@@ -23,14 +24,17 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_get_transitions(connection: str, issue_key: str, format: str = "toon") -> str:  # noqa: A002
-        """Get available transitions for a Jira issue."""
-        client = get_client(connection)
-        try:
-            result = await get_transitions(client, issue_key)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+    @mcp_tool(enricher)
+    async def jira_get_transitions(
+        connection: str,
+        issue_key: str,
+        format: Literal["toon", "json"] = "toon",  # noqa: A002
+    ) -> OperationResult:
+        """Get available transitions for a Jira issue.
+
+        Returns TOON by default (compact); pass format='json' for standard JSON shape.
+        """
+        return await get_transitions(get_client(connection), issue_key)
 
 
 def register_write(
@@ -39,14 +43,15 @@ def register_write(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_transition_issue(connection: str, issue_key: str, transition_id: str, format: str = "json") -> str:  # noqa: A002
+    @mcp_tool(enricher)
+    async def jira_transition_issue(
+        connection: str,
+        issue_key: str,
+        transition_id: str,
+        format: Literal["toon", "json"] = "json",  # noqa: A002
+    ) -> OperationResult:
         """Transition a Jira issue to a new status. Use jira_get_transitions to discover available transitions."""
         conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
-        client = AtlassianClient(conn)
-        try:
-            result = await transition_issue(client, issue_key, transition_id)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+            raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
+        return await transition_issue(AtlassianClient(conn), issue_key, transition_id)
