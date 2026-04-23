@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
-from a2atlassian.formatter import format_result
+from a2atlassian.decorators import mcp_tool
+from a2atlassian.formatter import OperationResult  # noqa: TC001 — FastMCP needs runtime annotation
 from a2atlassian.jira.fields import get_field_options, search_fields
 
 if TYPE_CHECKING:
@@ -22,21 +23,26 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_search_fields(connection: str, format: str = "toon") -> str:  # noqa: A002
-        """Search all Jira fields. Returns field id, name, custom flag, and schema type."""
-        client = get_client(connection)
-        try:
-            result = await search_fields(client)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+    @mcp_tool(enricher)
+    async def jira_search_fields(
+        connection: str,
+        format: Literal["toon", "json"] = "toon",  # noqa: A002
+    ) -> OperationResult:
+        """Search all Jira fields. Returns field id, name, custom flag, and schema type.
+
+        Returns TOON by default (compact); pass format='json' for standard JSON shape.
+        """
+        return await search_fields(get_client(connection))
 
     @server.tool()
-    async def jira_get_field_options(connection: str, field_id: str, format: str = "toon") -> str:  # noqa: A002
-        """Get allowed values for a Jira field."""
-        client = get_client(connection)
-        try:
-            result = await get_field_options(client, field_id)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+    @mcp_tool(enricher)
+    async def jira_get_field_options(
+        connection: str,
+        field_id: str,
+        format: Literal["toon", "json"] = "toon",  # noqa: A002
+    ) -> OperationResult:
+        """Get allowed values for a Jira field.
+
+        Returns TOON by default (compact); pass format='json' for standard JSON shape.
+        """
+        return await get_field_options(get_client(connection), field_id)
