@@ -1,0 +1,7 @@
+{
+  "results": [
+    {"id": "200", "type": "page", "title": "Child A", "version": {"number": 1}, "_links": {"webui": "/pages/200"}},
+    {"id": "201", "type": "page", "title": "Child B", "version": {"number": 4}, "_links": {"webui": "/pages/201"}}
+  ],
+  "start": 0, "limit": 50, "size": 2
+}
