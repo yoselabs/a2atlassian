@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
-from a2atlassian.formatter import format_result
+from a2atlassian.decorators import mcp_tool
+from a2atlassian.formatter import OperationResult  # noqa: TC001 — FastMCP needs runtime annotation
 from a2atlassian.jira.users import get_user_profile
 
 if TYPE_CHECKING:
@@ -22,11 +23,11 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_get_user_profile(connection: str, account_id: str, format: str = "json") -> str:  # noqa: A002
+    @mcp_tool(enricher)
+    async def jira_get_user_profile(
+        connection: str,
+        account_id: str,
+        format: Literal["toon", "json"] = "json",  # noqa: A002
+    ) -> OperationResult:
         """Get a Jira user profile by account ID."""
-        client = get_client(connection)
-        try:
-            result = await get_user_profile(client, account_id)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+        return await get_user_profile(get_client(connection), account_id)
