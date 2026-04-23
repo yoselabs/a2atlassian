@@ -48,6 +48,8 @@ Existing Atlassian MCP servers (Rovo, sooperset) require Docker, `.env` files, a
 - **Error enrichment** — bad field names get suggestions, JQL typos get corrections, quirks get auto-fixed
 - **Secrets stay in env** — `${ATLASSIAN_TOKEN}` in configs, expanded only at runtime
 
+> **Scope today:** a2atlassian ships Jira tools only. Confluence support is on the v0.4.0 roadmap; use [mcp-atlassian](https://github.com/sooperset/mcp-atlassian) for Confluence until then.
+
 ## Quick Start
 
 ```bash
