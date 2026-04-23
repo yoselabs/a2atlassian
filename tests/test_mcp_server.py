@@ -259,7 +259,7 @@ class TestToolWrapperExecution:
     async def test_all_write_tools_execute(self) -> None:
         """Every write tool wrapper body executes (writable connection)."""
         srv, _, write_names = self._register_and_split(read_only=False)
-        assert len(write_names) == 15
+        assert len(write_names) == 14
         for name in write_names:
             tool = srv._tool_manager._tools[name]
             kwargs = self._build_kwargs(tool.fn)
@@ -302,3 +302,11 @@ class TestToolDeletions:
 
         source = inspect.getsource(issues_mod)
         assert "jira_get_issue_dev_info" not in source
+
+    def test_jira_link_to_epic_is_absent(self) -> None:
+        import inspect
+
+        from a2atlassian.jira_tools import links as links_mod
+
+        source = inspect.getsource(links_mod)
+        assert "jira_link_to_epic" not in source

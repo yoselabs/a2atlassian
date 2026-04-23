@@ -1,4 +1,4 @@
-"""Jira link operations — link types, create/remove links, epic linking."""
+"""Jira link operations — link types, create/remove links."""
 
 from __future__ import annotations
 
@@ -85,33 +85,6 @@ async def remove_issue_link(client: AtlassianClient, link_id: str) -> OperationR
     return OperationResult(
         name="remove_issue_link",
         data={"link_id": link_id, "status": "removed"},
-        count=1,
-        truncated=False,
-        time_ms=elapsed,
-    )
-
-
-async def link_to_epic(
-    client: AtlassianClient,
-    issue_key: str,
-    epic_key: str,
-) -> OperationResult:
-    """Link an issue to an epic by setting the parent field."""
-    t0 = time.monotonic()
-    await client._call(
-        client._jira.update_issue_field,
-        issue_key,
-        {"parent": {"key": epic_key}},
-    )
-    elapsed = int((time.monotonic() - t0) * 1000)
-
-    return OperationResult(
-        name="link_to_epic",
-        data={
-            "issue_key": issue_key,
-            "epic_key": epic_key,
-            "status": "linked",
-        },
         count=1,
         truncated=False,
         time_ms=elapsed,

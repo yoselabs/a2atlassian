@@ -1,4 +1,4 @@
-"""Jira link tools — get link types, create/remove links, link to epic."""
+"""Jira link tools — get link types, create/remove links."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Literal
 from a2atlassian.client import AtlassianClient
 from a2atlassian.decorators import mcp_tool
 from a2atlassian.formatter import OperationResult  # noqa: TC001 — FastMCP needs runtime annotation
-from a2atlassian.jira.links import create_issue_link, get_link_types, link_to_epic, remove_issue_link
+from a2atlassian.jira.links import create_issue_link, get_link_types, remove_issue_link
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -50,7 +50,10 @@ def register_write(
         outward_key: str,
         format: Literal["toon", "json"] = "json",  # noqa: A002
     ) -> OperationResult:
-        """Create a link between two Jira issues. Use jira_get_link_types to discover available types."""
+        """Create a link between two Jira issues. Use jira_get_link_types to discover available types.
+
+        To set an issue's parent (Epic), pass link_type='Epic' with inward_key=<child> and outward_key=<epic>.
+        """
         conn = get_connection(connection)
         if conn.read_only:
             raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
@@ -68,17 +71,3 @@ def register_write(
         if conn.read_only:
             raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
         return await remove_issue_link(AtlassianClient(conn), link_id)
-
-    @server.tool()
-    @mcp_tool(enricher)
-    async def jira_link_to_epic(
-        connection: str,
-        issue_key: str,
-        epic_key: str,
-        format: Literal["toon", "json"] = "json",  # noqa: A002
-    ) -> OperationResult:
-        """Set the parent (epic) of an issue. Uses the parent field."""
-        conn = get_connection(connection)
-        if conn.read_only:
-            raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
-        return await link_to_epic(AtlassianClient(conn), issue_key, epic_key)

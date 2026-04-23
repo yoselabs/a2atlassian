@@ -12,7 +12,6 @@ from a2atlassian.formatter import OperationResult
 from a2atlassian.jira.links import (
     create_issue_link,
     get_link_types,
-    link_to_epic,
     remove_issue_link,
 )
 
@@ -89,14 +88,3 @@ class TestRemoveIssueLink:
         assert result.data["link_id"] == "12345"
         assert result.data["status"] == "removed"
         mock_client._jira_instance.remove_issue_link.assert_called_once_with("12345")
-
-
-class TestLinkToEpic:
-    async def test_links_to_epic(self, mock_client: AtlassianClient) -> None:
-        mock_client._jira_instance.update_issue_field.return_value = None
-        result = await link_to_epic(mock_client, "PROJ-5", "PROJ-1")
-        assert isinstance(result, OperationResult)
-        assert result.data["issue_key"] == "PROJ-5"
-        assert result.data["epic_key"] == "PROJ-1"
-        assert result.data["status"] == "linked"
-        mock_client._jira_instance.update_issue_field.assert_called_once_with("PROJ-5", {"parent": {"key": "PROJ-1"}})
