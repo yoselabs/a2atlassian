@@ -83,15 +83,7 @@ def login(connection: str, url: str, email: str, token: str, read_only: bool, ti
         sys.exit(1)
 
     store = _store()
-    path = store.save(
-        connection,
-        url,
-        email,
-        token,
-        read_only=read_only,
-        timezone=resolved_tz,
-        worklog_admins=list(worklog_admins),
-    )
+    path = store.save(info)
     display_name = user.get("displayName", "unknown")
     click.echo(f"Connection saved: {path} (authenticated as {display_name})")
 
@@ -114,7 +106,9 @@ def logout(connection: str) -> None:
 def connections(connection_filter: str | None) -> None:
     """List saved connections (no secrets shown)."""
     store = _store()
-    results = store.list_connections(connection=connection_filter)
+    results = store.list_connections()
+    if connection_filter is not None:
+        results = [r for r in results if r.connection == connection_filter]
     if not results:
         click.echo("No connections found.")
         return

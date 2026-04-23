@@ -98,15 +98,7 @@ async def login(
     client = JiraClient(info)
     user = await client.validate()
     store = _store()
-    path = store.save(
-        connection,
-        url,
-        email,
-        token,
-        read_only=read_only,
-        timezone=timezone,
-        worklog_admins=list(admins),
-    )
+    path = store.save(info)
     display_name = user.get("displayName", "unknown")
     return f"Connection saved: {path} (authenticated as {display_name})"
 
@@ -123,7 +115,9 @@ def logout(connection: str) -> str:
 def list_connections(connection: str | None = None) -> str:
     """List saved connections (no secrets shown)."""
     store = _store()
-    saved = store.list_connections(connection=connection)
+    saved = store.list_connections()
+    if connection is not None:
+        saved = [s for s in saved if s.connection == connection]
     all_conns = list(saved)
     for p, info in _ephemeral_connections.items():
         if connection is None or p == connection:

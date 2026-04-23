@@ -279,10 +279,10 @@ class TestToolWrapperExecution:
 class TestConnectionNotFoundEnrichment:
     def test_message_includes_available_names(self, tmp_path, monkeypatch) -> None:
         from a2atlassian import mcp_server
-        from a2atlassian.connections import ConnectionStore
+        from a2atlassian.connections import ConnectionInfo, ConnectionStore
 
         store = ConnectionStore(tmp_path)
-        store.save("protea", "https://p.atlassian.net", "x@y.com", "t")
+        store.save(ConnectionInfo(connection="protea", url="https://p.atlassian.net", email="x@y.com", token="t"))
         monkeypatch.setattr(mcp_server, "_store", lambda: store)
 
         with pytest.raises(FileNotFoundError, match="protae") as exc_info:

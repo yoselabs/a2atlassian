@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.5.0 — 2026-04-23
+
+### Changed (breaking)
+- **Connection TOML on-disk key `project` renamed to `connection`.** Existing connection files from v0.2-v0.4 fail to load with a clear error; delete them and re-run `a2atlassian login`. No compat shim.
+- `ConnectionInfo` is now a frozen Pydantic v2 `BaseModel` (was a `@dataclass`). External callers that construct it keyword-style are unaffected; `.model_dump()` / `.model_validate()` are available.
+- `ConnectionStore.save(info: ConnectionInfo)` — single-argument. The old 7-positional-param signature is gone.
+- `ConnectionStore.list_connections()` no longer accepts a filter arg. Use `load()` for single-name lookup, or filter the returned list in the caller.
+
+### Added
+- **1Password references** (`op://vault/item/field`) resolve via the `op` CLI alongside `${ENV_VAR}` refs. Falls through unchanged if `op` is not installed or the fetch fails.
+- Connection-name validation (`[A-Za-z0-9][A-Za-z0-9._-]*`) applied on both `ConnectionInfo` construction and `ConnectionStore._path` — blocks path traversal.
+- Atomic writes: `save()` writes to a tempfile and renames, so a crash mid-write can never leave a corrupt file.
+
+### Changed
+- TOML writing moved to `tomli-w` (was hand-rolled string formatting with manual escaping).
+- `pydantic>=2,<3` promoted to a direct dependency (previously transitive via `mcp`).
+
 ## v0.4.0 — 2026-04-23
 
 ### Added
