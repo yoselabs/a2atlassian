@@ -15,9 +15,10 @@ from a2atlassian.jira_tools import FEATURES as JIRA_FEATURES
 server = FastMCP(
     "a2atlassian",
     instructions=(
-        "Agent-to-Atlassian — work with Jira and Confluence. "
-        "Connections are identified by project name. "
-        "Use 'login' to save a connection, then call tools with the project name. "
+        "Agent-to-Atlassian — work with Jira. "
+        "Scope today: Jira only. For Confluence, use mcp__atlassian (sooperset). "
+        "Connections are identified by a connection name. "
+        "Use 'login' to save a connection, then call tools with the connection name. "
         "Connections are read-only by default; re-login with --read-only false to enable writes. "
         "For security, pass tokens as ${ENV_VAR} references, not literal values. "
         "Default output is TOON for lists (token-efficient), JSON for single entities."
@@ -33,58 +34,58 @@ def _store() -> ConnectionStore:
     return ConnectionStore(DEFAULT_CONFIG_DIR)
 
 
-def _get_connection(project: str) -> ConnectionInfo:
-    """Resolve a connection by project name."""
-    if project in _ephemeral_connections:
-        return _ephemeral_connections[project]
+def _get_connection(connection: str) -> ConnectionInfo:
+    """Resolve a connection by connection name."""
+    if connection in _ephemeral_connections:
+        return _ephemeral_connections[connection]
     store = _store()
-    conn = store.load(project)
-    if _scope_filter and project not in _scope_filter:
-        msg = f"Connection '{project}' exists but is not in scope. Available: {', '.join(_scope_filter)}"
+    conn = store.load(connection)
+    if _scope_filter and connection not in _scope_filter:
+        msg = f"Connection '{connection}' exists but is not in scope. Available: {', '.join(_scope_filter)}"
         raise FileNotFoundError(msg)
     return conn
 
 
-def _get_client(project: str) -> AtlassianClient:
+def _get_client(connection: str) -> AtlassianClient:
     """Resolve a connection and return a client."""
-    return AtlassianClient(_get_connection(project))
+    return AtlassianClient(_get_connection(connection))
 
 
 # --- Connection management tools ---
 
 
 @server.tool()
-async def login(project: str, url: str, email: str, token: str, read_only: bool = True) -> str:
+async def login(connection: str, url: str, email: str, token: str, read_only: bool = True) -> str:
     """Save an Atlassian connection. Validates by calling /myself.
 
     For security, prefer passing token as ${ENV_VAR} reference (e.g., "${ATLASSIAN_TOKEN}")
     rather than a literal value. The variable is expanded at runtime, never stored resolved.
     """
-    info = ConnectionInfo(connection=project, url=url, email=email, token=token, read_only=read_only)
+    info = ConnectionInfo(connection=connection, url=url, email=email, token=token, read_only=read_only)
     client = AtlassianClient(info)
     user = await client.validate()
     store = _store()
-    path = store.save(connection=project, url=url, email=email, token=token, read_only=read_only)
+    path = store.save(connection=connection, url=url, email=email, token=token, read_only=read_only)
     display_name = user.get("displayName", "unknown")
     return f"Connection saved: {path} (authenticated as {display_name})"
 
 
 @server.tool()
-def logout(project: str) -> str:
+def logout(connection: str) -> str:
     """Remove a saved connection."""
     store = _store()
-    store.delete(project)
-    return f"Connection removed: {project}"
+    store.delete(connection)
+    return f"Connection removed: {connection}"
 
 
 @server.tool()
-def list_connections(project: str | None = None) -> str:
+def list_connections(connection: str | None = None) -> str:
     """List saved connections (no secrets shown)."""
     store = _store()
-    saved = store.list_connections(connection=project)
+    saved = store.list_connections(connection=connection)
     all_conns = list(saved)
     for p, info in _ephemeral_connections.items():
-        if project is None or p == project:
+        if connection is None or p == connection:
             all_conns.append(info)
     if not all_conns:
         return "No connections found."
