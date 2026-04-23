@@ -249,7 +249,7 @@ class TestToolWrapperExecution:
     async def test_all_read_tools_execute(self) -> None:
         """Every read tool wrapper body executes without crashing."""
         srv, read_names, _ = self._register_and_split()
-        assert len(read_names) == 18
+        assert len(read_names) == 17
         for name in read_names:
             tool = srv._tool_manager._tools[name]
             kwargs = self._build_kwargs(tool.fn)

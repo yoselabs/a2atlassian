@@ -9,7 +9,13 @@ import pytest
 from a2atlassian.client import AtlassianClient
 from a2atlassian.connections import ConnectionInfo
 from a2atlassian.formatter import OperationResult
-from a2atlassian.jira.projects import create_version, get_project_components, get_project_versions, get_projects
+from a2atlassian.jira.projects import (
+    create_version,
+    get_project_components,
+    get_project_metadata,
+    get_project_versions,
+    get_projects,
+)
 
 
 @pytest.fixture
@@ -180,3 +186,32 @@ class TestCreateVersion:
         }
         result = await create_version(mock_client, "PROJ", "v4.0")
         assert result.data["id"] == "10004"
+
+
+class TestGetProjectMetadata:
+    async def test_components_only(self, mock_client: AtlassianClient) -> None:
+        mock_client._jira_instance.get_project_components.return_value = [{"id": "1", "name": "Backend"}]
+        result = await get_project_metadata(mock_client, "PROJ", include=["components"])
+        assert "components" in result.data
+        assert "versions" not in result.data
+        assert result.data["components"] == [{"id": "1", "name": "Backend"}]
+
+    async def test_versions_only(self, mock_client: AtlassianClient) -> None:
+        mock_client._jira_instance.get_project_versions.return_value = [{"id": "1", "name": "v1", "released": False}]
+        result = await get_project_metadata(mock_client, "PROJ", include=["versions"])
+        assert "versions" in result.data
+        assert "components" not in result.data
+
+    async def test_all_sentinel(self, mock_client: AtlassianClient) -> None:
+        mock_client._jira_instance.get_project_components.return_value = []
+        mock_client._jira_instance.get_project_versions.return_value = []
+        result = await get_project_metadata(mock_client, "PROJ", include=["all"])
+        assert "components" in result.data
+        assert "versions" in result.data
+
+    async def test_default_all(self, mock_client: AtlassianClient) -> None:
+        mock_client._jira_instance.get_project_components.return_value = []
+        mock_client._jira_instance.get_project_versions.return_value = []
+        result = await get_project_metadata(mock_client, "PROJ")
+        assert "components" in result.data
+        assert "versions" in result.data

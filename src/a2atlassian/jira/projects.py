@@ -102,6 +102,35 @@ async def get_project_components(client: AtlassianClient, project_key: str) -> O
     )
 
 
+async def get_project_metadata(
+    client: AtlassianClient,
+    project_key: str,
+    include: list[str] | None = None,
+) -> OperationResult:
+    """Get project metadata. include=['components','versions','all']; default 'all'."""
+    include = include or ["all"]
+    want_components = "components" in include or "all" in include
+    want_versions = "versions" in include or "all" in include
+
+    t0 = time.monotonic()
+    data: dict[str, Any] = {}
+    if want_components:
+        raw = await client._call(client._jira.get_project_components, project_key)
+        data["components"] = [{"id": str(c.get("id", "")), "name": c.get("name", "")} for c in raw]
+    if want_versions:
+        raw = await client._call(client._jira.get_project_versions, project_key)
+        data["versions"] = [{"id": str(v.get("id", "")), "name": v.get("name", ""), "released": v.get("released", False)} for v in raw]
+    elapsed = int((time.monotonic() - t0) * 1000)
+
+    return OperationResult(
+        name="get_project_metadata",
+        data=data,
+        count=1,
+        truncated=False,
+        time_ms=elapsed,
+    )
+
+
 async def create_version(
     client: AtlassianClient,
     project_key: str,
