@@ -214,7 +214,7 @@ class TestToolWrapperExecution:
         return kwargs
 
     @staticmethod
-    def _register_and_split(*, read_only=False):
+    def _register_and_split(*, read_only=False, include_confluence=False):
         """Register all tools, return (server, read_tool_names, write_tool_names)."""
         from mcp.server.fastmcp import FastMCP
 
@@ -234,15 +234,22 @@ class TestToolWrapperExecution:
         read_names: set[str] = set()
         write_names: set[str] = set()
 
-        for mod in JIRA_FEATURES.values():
-            before = set(srv._tool_manager._tools.keys())
-            if hasattr(mod, "register_read"):
-                mod.register_read(srv, lambda _p: mock_client, enricher)
-            after_read = set(srv._tool_manager._tools.keys())
-            read_names |= after_read - before
-            if hasattr(mod, "register_write"):
-                mod.register_write(srv, lambda _p: conn, enricher)
-            write_names |= set(srv._tool_manager._tools.keys()) - after_read
+        feature_maps = [JIRA_FEATURES]
+        if include_confluence:
+            from a2atlassian.confluence_tools import FEATURES as CONFLUENCE_FEATURES
+
+            feature_maps.append(CONFLUENCE_FEATURES)
+
+        for feature_map in feature_maps:
+            for mod in feature_map.values():
+                before = set(srv._tool_manager._tools.keys())
+                if hasattr(mod, "register_read"):
+                    mod.register_read(srv, lambda _p: mock_client, enricher)
+                after_read = set(srv._tool_manager._tools.keys())
+                read_names |= after_read - before
+                if hasattr(mod, "register_write"):
+                    mod.register_write(srv, lambda _p: conn, enricher)
+                write_names |= set(srv._tool_manager._tools.keys()) - after_read
 
         return srv, read_names, write_names
 
@@ -265,6 +272,22 @@ class TestToolWrapperExecution:
             kwargs = self._build_kwargs(tool.fn)
             result = await tool.fn(**kwargs)
             assert isinstance(result, str), f"{name} did not return str"
+
+    async def test_all_tools_declare_str_return_type(self) -> None:
+        """Regression: every registered tool must declare -> str so FastMCP's output_schema
+        matches the formatted string the @mcp_tool wrapper returns. Declaring -> OperationResult
+        (the internal dataclass) makes FastMCP validate the JSON string against a dict schema
+        and raises 'Input should be a valid dictionary or object to extract fields from'."""
+        srv, read_names, write_names = self._register_and_split(read_only=False, include_confluence=True)
+        for name in read_names | write_names:
+            tool = srv._tool_manager._tools[name]
+            hints = inspect.get_annotations(tool.fn, eval_str=True)
+            assert hints.get("return") is str, f"{name} declares return {hints.get('return')!r}; must be str"
+            # With -> str, FastMCP generates a wrap_output schema that accepts the
+            # formatted string. Verify validation round-trips so we catch any future
+            # regression where someone reintroduces a dataclass return type.
+            validated = tool.fn_metadata.convert_result("ok")
+            assert validated is not None
 
     async def test_write_tools_read_only_guard(self) -> None:
         """Write tools return error when connection is read-only."""

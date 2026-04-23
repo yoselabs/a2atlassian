@@ -74,6 +74,16 @@ def mcp_tool(
             fmt = bound.arguments.get("format", "toon")
             return format_result(result, fmt=fmt)
 
+        # The wrapper always returns `str` (formatted output), not OperationResult.
+        # FastMCP inspects annotations with inspect.signature(follow_wrapped=True,
+        # eval_str=True), which reaches through @functools.wraps to fn itself.
+        # Overwrite the return on BOTH objects so FastMCP builds an output_schema
+        # matching the wrapper's actual return value — otherwise it validates the
+        # formatted JSON string against OperationResult's dict schema and raises
+        # "Input should be a valid dictionary or object to extract fields from".
+        fn.__annotations__ = {**fn.__annotations__, "return": str}
+        wrapper.__annotations__ = {**wrapper.__annotations__, "return": str}
+
         return wrapper
 
     return decorator

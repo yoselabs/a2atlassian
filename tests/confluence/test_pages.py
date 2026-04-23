@@ -308,13 +308,16 @@ class TestUpsertKnobs:
         assert {c.args[1] for c in calls} == {"alpha", "beta"}
         assert all(c.args[0] == "9" for c in calls)
 
-    async def test_emoji_and_page_width_invoke_property_set(self, mock_client: ConfluenceClient) -> None:
+    async def test_emoji_and_page_width_create_property_when_missing(self, mock_client: ConfluenceClient) -> None:
+        from atlassian.errors import ApiError
+
         mock_client._confluence_instance.get_page_by_title.return_value = None
         mock_client._confluence_instance.create_page.return_value = {
             "id": "9",
             "version": {"number": 1},
             "_links": {"webui": "/p/9"},
         }
+        mock_client._confluence_instance.get_page_property.side_effect = ApiError("not found")
         await upsert_page(
             mock_client,
             space="SP",
@@ -327,7 +330,42 @@ class TestUpsertKnobs:
             emoji="📄",
             labels=None,
         )
-        assert mock_client._confluence_instance.set_page_property.call_count >= 1
+        set_calls = mock_client._confluence_instance.set_page_property.call_args_list
+        keys_set = {c.args[1]["key"] for c in set_calls}
+        assert keys_set == {"emoji-title-published", "content-appearance-published"}
+        mock_client._confluence_instance.update_page_property.assert_not_called()
+
+    async def test_page_width_updates_existing_property_with_version_bump(self, mock_client: ConfluenceClient) -> None:
+        mock_client._confluence_instance.get_page_by_title.return_value = {"id": "9", "title": "T"}
+        mock_client._confluence_instance.update_page.return_value = {
+            "id": "9",
+            "version": {"number": 2},
+            "_links": {"webui": "/p/9"},
+        }
+        mock_client._confluence_instance.get_page_property.return_value = {
+            "key": "content-appearance-published",
+            "value": "fixed-width",
+            "version": {"number": 3},
+        }
+        await upsert_page(
+            mock_client,
+            space="SP",
+            title="T",
+            content="x",
+            parent_id=None,
+            page_id=None,
+            content_format="markdown",
+            page_width="full-width",
+            emoji=None,
+            labels=None,
+        )
+        update_calls = mock_client._confluence_instance.update_page_property.call_args_list
+        assert len(update_calls) == 1
+        payload = update_calls[0].args[1]
+        assert payload["key"] == "content-appearance-published"
+        assert payload["value"] == "full-width"
+        assert payload["version"] == {"number": 4}
+        mock_client._confluence_instance.set_page_property.assert_not_called()
 
     async def test_page_width_none_on_update_does_not_touch_property(self, mock_client: ConfluenceClient) -> None:
         mock_client._confluence_instance.get_page_by_title.return_value = {"id": "9", "title": "T"}
@@ -350,3 +388,4 @@ class TestUpsertKnobs:
             labels=None,
         )
         mock_client._confluence_instance.set_page_property.assert_not_called()
+        mock_client._confluence_instance.update_page_property.assert_not_called()

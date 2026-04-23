@@ -5,6 +5,8 @@ from __future__ import annotations
 import time
 from typing import TYPE_CHECKING, Any
 
+from atlassian.errors import ApiError
+
 from a2atlassian.confluence.content_format import markdown_to_storage
 from a2atlassian.errors import AuthenticationError
 from a2atlassian.formatter import OperationResult
@@ -139,24 +141,47 @@ async def _apply_labels(client: ConfluenceClient, page_id: str, labels: list[str
         await client._call(client._confluence.set_page_label, page_id, label)
 
 
+async def _upsert_page_property(client: ConfluenceClient, page_id: str, key: str, value: Any) -> None:
+    """Create-or-update a Confluence content property.
+
+    The v1 REST API splits this into POST (create, fails if exists) and PUT (update,
+    requires incremented version). Callers get create-or-update semantics here.
+    """
+    try:
+        existing = await client._call(client._confluence.get_page_property, page_id, key)
+    except ApiError:
+        existing = None
+
+    if existing is None:
+        await client._call(
+            client._confluence.set_page_property,
+            page_id,
+            {"key": key, "value": value},
+        )
+        return
+
+    current_version = ((existing.get("version") or {}).get("number")) or 1
+    await client._call(
+        client._confluence.update_page_property,
+        page_id,
+        {
+            "key": key,
+            "value": value,
+            "version": {"number": current_version + 1},
+        },
+    )
+
+
 async def _apply_emoji(client: ConfluenceClient, page_id: str, emoji: str | None) -> None:
     if emoji is None:
         return
-    await client._call(
-        client._confluence.set_page_property,
-        page_id,
-        {"key": "emoji-title-published", "value": emoji},
-    )
+    await _upsert_page_property(client, page_id, "emoji-title-published", emoji)
 
 
 async def _apply_page_width(client: ConfluenceClient, page_id: str, page_width: str | None) -> None:
     if page_width is None:
         return
-    await client._call(
-        client._confluence.set_page_property,
-        page_id,
-        {"key": "content-appearance-published", "value": page_width},
-    )
+    await _upsert_page_property(client, page_id, "content-appearance-published", page_width)
 
 
 async def upsert_page(

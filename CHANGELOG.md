@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- **Every MCP tool response crashed client-side** with `pydantic_core.ValidationError: Input should be a valid dictionary or object to extract fields from`. Tool functions declared `-> OperationResult`, but the `@mcp_tool` wrapper actually returns a formatted JSON/TOON string; MCP ≥1.9's output-schema validation then validated the string against the dataclass schema. The decorator now overrides the annotation to `str` on both the wrapper and its `__wrapped__` target so FastMCP builds a matching output schema. Confluence reads were fully blocked by this.
+- **`confluence_upsert_pages` silently no-op'd `page_width` / `emoji` on existing pages.** Both knobs went through `Confluence.set_page_property`, which is POST-only and errors (swallowed by the batch handler) when the property already exists. Now resolves through get → `update_page_property` with incremented version, falling back to `set_page_property` on first write.
+
 ## v0.5.1 — 2026-04-23
 
 ### Docs

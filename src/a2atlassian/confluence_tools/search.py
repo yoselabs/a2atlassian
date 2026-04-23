@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Literal
 
 from a2atlassian.confluence.search import search as _search
 from a2atlassian.decorators import mcp_tool
-from a2atlassian.formatter import OperationResult  # noqa: TC001
+from a2atlassian.formatter import OperationResult  # noqa: TC001 — FastMCP needs runtime annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable
