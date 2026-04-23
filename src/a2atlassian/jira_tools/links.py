@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from a2atlassian.client import AtlassianClient
-from a2atlassian.formatter import format_result
+from a2atlassian.decorators import mcp_tool
+from a2atlassian.formatter import OperationResult  # noqa: TC001 — FastMCP needs runtime annotation
 from a2atlassian.jira.links import create_issue_link, get_link_types, link_to_epic, remove_issue_link
 
 if TYPE_CHECKING:
@@ -23,14 +24,16 @@ def register_read(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
-    async def jira_get_link_types(connection: str, format: str = "toon") -> str:  # noqa: A002
-        """Get all available issue link types (e.g. Blocks, Duplicate, Relates)."""
-        client = get_client(connection)
-        try:
-            result = await get_link_types(client)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+    @mcp_tool(enricher)
+    async def jira_get_link_types(
+        connection: str,
+        format: Literal["toon", "json"] = "toon",  # noqa: A002
+    ) -> OperationResult:
+        """Get all available issue link types (e.g. Blocks, Duplicate, Relates).
+
+        Returns TOON by default (compact); pass format='json' for standard JSON shape.
+        """
+        return await get_link_types(get_client(connection))
 
 
 def register_write(
@@ -39,46 +42,43 @@ def register_write(
     enricher: ErrorEnricher,
 ) -> None:
     @server.tool()
+    @mcp_tool(enricher)
     async def jira_create_issue_link(
         connection: str,
         link_type: str,
         inward_key: str,
         outward_key: str,
-        format: str = "json",  # noqa: A002
-    ) -> str:
+        format: Literal["toon", "json"] = "json",  # noqa: A002
+    ) -> OperationResult:
         """Create a link between two Jira issues. Use jira_get_link_types to discover available types."""
         conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
-        client = AtlassianClient(conn)
-        try:
-            result = await create_issue_link(client, link_type, inward_key, outward_key)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+            raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
+        return await create_issue_link(AtlassianClient(conn), link_type, inward_key, outward_key)
 
     @server.tool()
-    async def jira_remove_issue_link(connection: str, link_id: str, format: str = "json") -> str:  # noqa: A002
+    @mcp_tool(enricher)
+    async def jira_remove_issue_link(
+        connection: str,
+        link_id: str,
+        format: Literal["toon", "json"] = "json",  # noqa: A002
+    ) -> OperationResult:
         """Remove an issue link by its ID."""
         conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
-        client = AtlassianClient(conn)
-        try:
-            result = await remove_issue_link(client, link_id)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+            raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
+        return await remove_issue_link(AtlassianClient(conn), link_id)
 
     @server.tool()
-    async def jira_link_to_epic(connection: str, issue_key: str, epic_key: str, format: str = "json") -> str:  # noqa: A002
+    @mcp_tool(enricher)
+    async def jira_link_to_epic(
+        connection: str,
+        issue_key: str,
+        epic_key: str,
+        format: Literal["toon", "json"] = "json",  # noqa: A002
+    ) -> OperationResult:
         """Set the parent (epic) of an issue. Uses the parent field."""
         conn = get_connection(connection)
         if conn.read_only:
-            return enricher.enrich(f"Connection '{connection}' is read-only.", {"connection": connection})
-        client = AtlassianClient(conn)
-        try:
-            result = await link_to_epic(client, issue_key, epic_key)
-        except Exception as exc:  # noqa: BLE001
-            return enricher.enrich(str(exc), {"connection": connection})
-        return format_result(result, fmt=format)
+            raise RuntimeError(f"Connection '{connection}' is read-only. Run: a2atlassian login -c {connection} --no-read-only")
+        return await link_to_epic(AtlassianClient(conn), issue_key, epic_key)
