@@ -132,6 +132,33 @@ async def resolve_page_identity(
     return None
 
 
+async def _apply_labels(client: ConfluenceClient, page_id: str, labels: list[str] | None) -> None:
+    if not labels:
+        return
+    for label in labels:
+        await client._call(client._confluence.set_page_label, page_id, label)
+
+
+async def _apply_emoji(client: ConfluenceClient, page_id: str, emoji: str | None) -> None:
+    if emoji is None:
+        return
+    await client._call(
+        client._confluence.set_page_property,
+        page_id,
+        {"key": "emoji-title-published", "value": emoji},
+    )
+
+
+async def _apply_page_width(client: ConfluenceClient, page_id: str, page_width: str | None) -> None:
+    if page_width is None:
+        return
+    await client._call(
+        client._confluence.set_page_property,
+        page_id,
+        {"key": "content-appearance-published", "value": page_width},
+    )
+
+
 async def upsert_page(
     client: ConfluenceClient,
     *,
@@ -177,6 +204,12 @@ async def upsert_page(
     links = raw.get("_links") or {}
     version = (raw.get("version") or {}).get("number", 0)
     page_id_out = str(raw.get("id", resolved or ""))
+
+    await _apply_labels(client, page_id_out, labels)
+    await _apply_emoji(client, page_id_out, emoji)
+    # On create, default page_width to "fixed-width" if caller did not specify.
+    effective_width = page_width if page_width is not None else ("fixed-width" if status == "created" else None)
+    await _apply_page_width(client, page_id_out, effective_width)
 
     return {
         "title": title,

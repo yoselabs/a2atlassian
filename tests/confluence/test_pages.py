@@ -236,3 +236,72 @@ class TestUpsertBatch:
     async def test_empty_batch(self, mock_client: ConfluenceClient) -> None:
         result = await upsert_pages(mock_client, pages=[])
         assert result.data["summary"] == {"total": 0, "created": 0, "updated": 0, "failed": 0}
+
+
+class TestUpsertKnobs:
+    async def test_labels_applied_after_save(self, mock_client: ConfluenceClient) -> None:
+        mock_client._confluence_instance.get_page_by_title.return_value = None
+        mock_client._confluence_instance.create_page.return_value = {
+            "id": "9",
+            "version": {"number": 1},
+            "_links": {"webui": "/p/9"},
+        }
+        await upsert_page(
+            mock_client,
+            space="SP",
+            title="T",
+            content="x",
+            parent_id=None,
+            page_id=None,
+            content_format="markdown",
+            page_width=None,
+            emoji=None,
+            labels=["alpha", "beta"],
+        )
+        calls = mock_client._confluence_instance.set_page_label.call_args_list
+        assert len(calls) == 2
+        assert {c.args[1] for c in calls} == {"alpha", "beta"}
+        assert all(c.args[0] == "9" for c in calls)
+
+    async def test_emoji_and_page_width_invoke_property_set(self, mock_client: ConfluenceClient) -> None:
+        mock_client._confluence_instance.get_page_by_title.return_value = None
+        mock_client._confluence_instance.create_page.return_value = {
+            "id": "9",
+            "version": {"number": 1},
+            "_links": {"webui": "/p/9"},
+        }
+        await upsert_page(
+            mock_client,
+            space="SP",
+            title="T",
+            content="x",
+            parent_id=None,
+            page_id=None,
+            content_format="markdown",
+            page_width="full-width",
+            emoji="📄",
+            labels=None,
+        )
+        assert mock_client._confluence_instance.set_page_property.call_count >= 1
+
+    async def test_page_width_none_on_update_does_not_touch_property(self, mock_client: ConfluenceClient) -> None:
+        mock_client._confluence_instance.get_page_by_title.return_value = {"id": "9", "title": "T"}
+        mock_client._confluence_instance.update_page.return_value = {
+            "id": "9",
+            "version": {"number": 2},
+            "_links": {"webui": "/p/9"},
+        }
+        mock_client._confluence_instance.set_page_property.reset_mock()
+        await upsert_page(
+            mock_client,
+            space="SP",
+            title="T",
+            content="x",
+            parent_id=None,
+            page_id=None,
+            content_format="markdown",
+            page_width=None,
+            emoji=None,
+            labels=None,
+        )
+        mock_client._confluence_instance.set_page_property.assert_not_called()
