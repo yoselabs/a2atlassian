@@ -10,6 +10,7 @@ import pytest
 
 from a2atlassian.client import AtlassianClient
 from a2atlassian.connections import ConnectionInfo
+from a2atlassian.errors import ErrorEnricher
 from a2atlassian.formatter import OperationResult
 from a2atlassian.jira.worklogs import add_worklog, get_worklogs, get_worklogs_summary
 
@@ -237,3 +238,90 @@ class TestGetWorklogsSummary:
         assert len(alice) == 1
         assert alice[0]["date"] == "2026-04-23"
         assert alice[0]["hours"] == 1.0
+
+
+class TestTwoModeToolLogic:
+    """Unit tests for the two-mode jira_get_worklogs MCP tool dispatch logic."""
+
+    @pytest.fixture
+    def real_client(self) -> AtlassianClient:
+        """A real AtlassianClient with a mocked _jira_instance."""
+        conn = ConnectionInfo(
+            connection="test",
+            url="https://test.atlassian.net",
+            email="t@t.com",
+            token="tok",
+            read_only=False,
+            timezone="UTC",
+        )
+        client = AtlassianClient(conn)
+        client._jira_instance = MagicMock()
+        return client
+
+    @pytest.fixture
+    def tool_fn(self, real_client):
+        """Register jira_get_worklogs and return the wrapped coroutine."""
+        from mcp.server.fastmcp import FastMCP
+
+        from a2atlassian.jira_tools.worklogs import register_read
+
+        srv = FastMCP("test")
+        enricher = ErrorEnricher()
+        register_read(srv, lambda _p: real_client, enricher)
+        return srv._tool_manager._tools["jira_get_worklogs"].fn
+
+    async def test_error_when_neither_issue_key_nor_date_from(self, tool_fn) -> None:
+        """Neither issue_key nor date_from → enriched error string."""
+        result = await tool_fn(connection="test")
+        assert isinstance(result, str)
+        assert "issue_key" in result or "date_from" in result or "raw mode" in result
+
+    async def test_raw_mode_when_only_issue_key(self, tool_fn, real_client) -> None:
+        """issue_key set, date_from unset → raw mode: issue_get_worklog called."""
+        real_client._jira_instance.issue_get_worklog.return_value = {"worklogs": []}
+        result = await tool_fn(connection="test", issue_key="PROJ-1")
+        assert isinstance(result, str)
+        real_client._jira_instance.issue_get_worklog.assert_called_once_with("PROJ-1")
+
+    async def test_summary_mode_when_only_date_from(self, tool_fn, real_client) -> None:
+        """date_from set, issue_key unset → summary mode: jql called."""
+        real_client._jira_instance.jql.return_value = {"issues": [], "total": 0}
+        result = await tool_fn(connection="test", date_from="2026-04-22")
+        assert isinstance(result, str)
+        real_client._jira_instance.jql.assert_called_once()
+
+    async def test_raw_filtered_when_issue_key_and_date_from(self, tool_fn, real_client) -> None:
+        """issue_key + date_from set → raw mode with date filter applied."""
+        import json as _json
+
+        real_client._jira_instance.issue_get_worklog.return_value = {
+            "worklogs": [
+                {
+                    "id": "1",
+                    "author": {"displayName": "Alice"},
+                    "timeSpent": "2h",
+                    "started": "2026-04-22T10:00:00.000+0000",
+                    "comment": "",
+                },
+                {
+                    "id": "2",
+                    "author": {"displayName": "Bob"},
+                    "timeSpent": "1h",
+                    "started": "2026-04-23T10:00:00.000+0000",
+                    "comment": "",
+                },
+            ]
+        }
+        # Request only date 2026-04-22 — only Alice's worklog should survive
+        result = await tool_fn(connection="test", issue_key="PROJ-1", date_from="2026-04-22", date_to="2026-04-22", format="json")
+        assert isinstance(result, str)
+        parsed = _json.loads(result)
+        assert parsed["count"] == 1
+        assert parsed["data"][0]["author"] == "Alice"
+
+    async def test_detail_raw_in_summary_mode_raises_error(self, tool_fn, real_client) -> None:
+        """detail='raw' with date_from (summary mode) → enriched error string."""
+        real_client._jira_instance.jql.return_value = {"issues": [], "total": 0}
+        result = await tool_fn(connection="test", date_from="2026-04-22", detail="raw")
+        assert isinstance(result, str)
+        assert "raw" in result
